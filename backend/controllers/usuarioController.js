@@ -19,12 +19,14 @@ const register = async (req, res) => {
     });    
 
     // TODO: Generar un token para el usuario recién creado usando generarToken()
-    const token = generarToken(usuario);
+    // const token = generarToken(usuario); 
+    //comentado por ahora sin JWT
 
     res.status(201).json({
       message: 'Usuario registrado exitosamente',
-      usuario,
-      token
+      usuario
+      // token
+      //comentado por ahora sin JWT
     });
   } catch (error) {
     console.error('Error en register:', error);
@@ -50,12 +52,14 @@ const login = async (req, res) => {
       return res.status(401).json({ error: 'Credenciales inválidas' });
     }
 
-    const token = generarToken(usuario);
+    // const token = generarToken(usuario);
+    //comentado por ahora sin JWT
 
     res.json({
       message: 'Login exitoso',
       usuario,
-      token
+      // token
+      //comentado por ahora sin JWT
     });
   } catch (error) {
     console.error('Error en login:', error);
@@ -67,7 +71,7 @@ const perfil = async (req, res) => {
   try {
     // TODO: Obtener el usuario desde la base de datos usando el id de req.user
     // Pista: req.user fue seteado por el middleware verificarToken
-    const usuario = await Usuario.findByPk(req.user.id); {
+    const usuario = await Usuario.findByPk(req.params.id); { //req.params en vez req.user por ahora sin JWT
         // COMPLETAR bloque cuando Transaccion este listo
     }
 
