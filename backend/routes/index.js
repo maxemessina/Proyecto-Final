@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const authRoutes = require('./auth');
+const usuarioRoutes = require('./usuarioRoutes');
 
 // Ruta de prueba
 router.get('/health', (req, res) => {
@@ -12,8 +12,8 @@ router.get('/health', (req, res) => {
   });
 });
 
-// Rutas de autenticación
-router.use('/auth', authRoutes);
+// Rutas de usuario
+router.use('/usuario', usuarioRoutes);
 
 // Ruta de ejemplo
 router.get('/test', (req, res) => {
