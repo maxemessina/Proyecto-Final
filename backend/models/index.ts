@@ -1,5 +1,5 @@
 // backend/models/index.js
-const { Sequelize } = require('sequelize');
+import { Sequelize } from 'sequelize';
 const config = require('../config/database');
 
 const env = process.env.NODE_ENV || 'development';
@@ -19,11 +19,20 @@ const sequelize = new Sequelize(
   }
 );
 
-const UserModel = require('./User');
-const User = UserModel(sequelize);
+//importar cada funcion incializadora y clase
+import initUsuario, { Usuario } from './usuario';
+// import initTransaccion, { Transaccion } from './transaccion';
+// import initCategoria, { Categoria } from './categoria';
+
+//inicializar cada modelo
+initUsuario(sequelize);
+// initTransaccion(sequelize);
+// initCategoria(sequelize);
+
+// configuracion de relaciones
 
 module.exports = {
   sequelize,
   Sequelize,
-  User
-};
+  Usuario
+} //export para usar en los controllers
