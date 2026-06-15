@@ -8,7 +8,7 @@ module.exports = {
     database: process.env.DB_NAME || 'app_database',
     host: process.env.DB_HOST || 'localhost',
     port: process.env.DB_PORT || 5432,
-    dialect: process.env.DB_DIALECT || 'postgres',
+    dialect: 'postgres',
     logging: console.log,
     pool: {
       max: 5,
@@ -23,7 +23,7 @@ module.exports = {
     database: process.env.DB_NAME + '_test' || 'app_database_test',
     host: process.env.DB_HOST || 'localhost',
     port: process.env.DB_PORT || 5432,
-    dialect: process.env.DB_DIALECT || 'postgres',
+    dialect: 'postgres',
     logging: false
   },
   production: {
@@ -32,7 +32,7 @@ module.exports = {
     database: process.env.DB_NAME,
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
-    dialect: process.env.DB_DIALECT || 'postgres',
+    dialect: 'postgres',
     logging: false,
     pool: {
       max: 10,
