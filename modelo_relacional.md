@@ -6,7 +6,7 @@
 ├─────────────────┤
 │ id (PK)         │◄──────────┐
 │ email (UNIQUE)  │           │
-│ password_hash   │           │ 1:N
+│ password        │           │ 1:N
 │ nombre          │           │
 │ created_at      │           │
 └─────────────────┘           │
@@ -37,7 +37,7 @@ Campo         | Tipo                     | Descripción
 --------------|--------------------------|-------------
 id            | INT (PK, AUTO_INCREMENT) | Identificador único del usuario
 email         | VARCHAR(255, UNIQUE)     | Email (login único)
-password_hash | VARCHAR(255)             | Hash de contraseña
+password      | VARCHAR(255)             | Hash de contraseña
 nombre        | VARCHAR(255)             | Nombre completo
 created_at    | TIMESTAMP                | Fecha de creación
 
