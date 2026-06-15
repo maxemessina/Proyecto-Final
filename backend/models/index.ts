@@ -1,9 +1,9 @@
-// backend/models/index.js
+// backend/models/index.ts
 import { Sequelize } from 'sequelize';
-const config = require('../config/database');
+import config from '../config/database';
 
 const env = process.env.NODE_ENV || 'development';
-const dbConfig = config[env];
+const dbConfig = (config as any)[env];
 
 const sequelize = new Sequelize(
   dbConfig.database,
@@ -31,8 +31,4 @@ initUsuario(sequelize);
 
 // configuracion de relaciones
 
-module.exports = {
-  sequelize,
-  Sequelize,
-  Usuario
-} //export para usar en los controllers
+export { sequelize, Sequelize, Usuario };
