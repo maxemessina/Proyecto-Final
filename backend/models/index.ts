@@ -21,14 +21,14 @@ const sequelize = new Sequelize(
 
 //importar cada funcion incializadora y clase
 import initUsuario, { Usuario } from './usuario';
+import initCategoria, { Categoria } from './categoria';
 // import initTransaccion, { Transaccion } from './transaccion';
-// import initCategoria, { Categoria } from './categoria';
 
 //inicializar cada modelo
 initUsuario(sequelize);
+initCategoria(sequelize);
 // initTransaccion(sequelize);
-// initCategoria(sequelize);
 
 // configuracion de relaciones
 
-export { sequelize, Sequelize, Usuario };
+export { sequelize, Sequelize, Usuario, Categoria };
