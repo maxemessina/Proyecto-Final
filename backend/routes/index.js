@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const usuarioRoutes = require('./usuarioRoutes');
 const categoriaRoutes = require('./categoriaRoutes');
+const transaccionRoutes = require('./transaccionRoutes');
 
 // Ruta de prueba
 router.get('/health', (req, res) => {
@@ -18,6 +19,9 @@ router.use('/usuario', usuarioRoutes);
 
 // Rutas de categoría
 router.use('/categoria', categoriaRoutes);
+
+// Rutas de transacción
+router.use('/transaccion', transaccionRoutes);
 
 // Ruta de ejemplo
 router.get('/test', (req, res) => {
