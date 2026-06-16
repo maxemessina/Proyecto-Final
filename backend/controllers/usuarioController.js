@@ -1,4 +1,7 @@
-const { Usuario /*, Transaccion */ } = require('../models'); // Importamos el modelo Usuario (y Transaccion cuando este listo)
+const db = require('../models');
+const Usuario = db.Usuario || db.default.Usuario; // ajuste para compatibilidad con exportaciones
+// importamos el Transaccion cuando este listo
+
 const { generarToken } = require('../middleware/auth');
 
 const register = async (req, res) => {
