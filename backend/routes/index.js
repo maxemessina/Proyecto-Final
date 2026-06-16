@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const usuarioRoutes = require('./usuarioRoutes');
+const categoriaRoutes = require('./categoriaRoutes');
 
 // Ruta de prueba
 router.get('/health', (req, res) => {
@@ -14,6 +15,9 @@ router.get('/health', (req, res) => {
 
 // Rutas de usuario
 router.use('/usuario', usuarioRoutes);
+
+// Rutas de categoría
+router.use('/categoria', categoriaRoutes);
 
 // Ruta de ejemplo
 router.get('/test', (req, res) => {
