@@ -10,7 +10,7 @@ export class Transaccion extends Model {
   public readonly created_at!: Date;
 }
 
-export function initTransaccion(sequelize: Sequelize) {
+export default (sequelize: Sequelize) => {
   Transaccion.init(
     {
       id: {
@@ -54,4 +54,4 @@ export function initTransaccion(sequelize: Sequelize) {
   );
 
   return Transaccion;
-}
+};
