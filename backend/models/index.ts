@@ -31,4 +31,20 @@ initTransaccion(sequelize);
 
 // configuracion de relaciones
 
+Usuario.hasMany(Transaccion, {
+  foreignKey: "usuario_id",
+});
+
+Transaccion.belongsTo(Usuario, {
+  foreignKey: "usuario_id",
+});
+
+Categoria.hasMany(Transaccion, {
+  foreignKey: "categoria_id",
+});
+
+Transaccion.belongsTo(Categoria, {
+  foreignKey: "categoria_id",
+});
+
 export { sequelize, Sequelize, Usuario, Categoria, Transaccion };
