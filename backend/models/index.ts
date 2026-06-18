@@ -31,4 +31,4 @@ initTransaccion(sequelize);
 
 // configuracion de relaciones
 
-export { sequelize, Sequelize, Usuario, Categoria };
+export { sequelize, Sequelize, Usuario, Categoria, Transaccion };
