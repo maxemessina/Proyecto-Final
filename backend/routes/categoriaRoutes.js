@@ -7,9 +7,9 @@ const {
 } = require('../controllers/categoriaController');
 
 // POST /api/categoria
-router.post('/', crearCategoria);
+router.post('/crear', crearCategoria);
 
 // GET /api/categoria
-router.get('/', obtenerCategorias);
+router.get('/obtener', obtenerCategorias);
 
 module.exports = router;
