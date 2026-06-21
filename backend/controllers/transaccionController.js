@@ -1,4 +1,5 @@
 const { Transaccion, Categoria, Usuario } = require("../models");
+const { fn, col } = require('sequelize');
 
 const crearTransaccion = async (req, res) => {
   try {
@@ -99,9 +100,68 @@ const eliminarTransaccion = async (req, res) => {
   }
 };
 
+const obtenerBalance = async (req, res) => {
+  try {
+    const usuario_id = req.params.usuarioId; 
+
+    const registros = await Transaccion.findAll({
+      where: { usuario_id },
+      attributes: [
+        [fn('SUM', col('monto')), 'total']
+      ],
+      include: [
+        {
+          model: Categoria,
+          attributes: ['tipo'], 
+        }
+      ],
+      group: ['Categorium.tipo', 'Categorium.id'],
+      raw: true,  
+      nest: true 
+    });
+
+    let ingresos = 0;
+    let egresos = 0;
+
+    registros.forEach(item => {
+      
+      const total = parseFloat(item.total) || 0;
+      const tipo = item.Categorium ? item.Categorium.tipo : null;
+
+      if (tipo === 'ingreso') {
+        ingresos += total;
+      } else if (tipo === 'egreso') {
+        egresos += total;
+      }
+    });
+
+    const balanceNeto = ingresos - egresos;
+
+    return res.status(200).json({
+      status: 'success',
+      data: {
+        ingresos,
+        egresos,
+        balanceNeto
+      }
+    });
+
+  } catch (error) {
+    console.error('Error al calcular el balance con Sequelize:', error);
+    return res.status(500).json({
+      message: 'Error interno del servidor al calcular el balance'
+    });
+  } catch (error) {
+    console.error("Error al eliminar la transaccion:", error);
+    res.status(500).json({ error: "Error al eliminar la transaccion" });
+  }
+};
+
 module.exports = {
   crearTransaccion,
   obtenerTransacciones,
   actualizarTransaccion,
   eliminarTransaccion,
+  obtenerBalance, 
+};
 };
