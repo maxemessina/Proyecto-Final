@@ -25,13 +25,8 @@ export default (sequelize: Sequelize) => {
         },
       },
       tipo: {
-        type: DataTypes.STRING(100),
+        type: DataTypes.ENUM('Ingreso', 'Egreso'),
         allowNull: false,
-        validate: {
-          notEmpty: {
-            msg: 'El tipo no puede estar vacío',
-          },
-        },
       },
     },
     {

@@ -1,9 +1,14 @@
 const { Categoria } = require('../models');
 
-// POST /api/categoria
 const crearCategoria = async (req, res) => {
   try {
     const { nombre, tipo } = req.body;
+
+    if (tipo !== 'ingreso' && tipo !== 'egreso') {
+      return res.status(400).json({
+        error: 'El tipo debe ser "ingreso" o "egreso"'
+      });
+    }
 
     const existente = await Categoria.findOne({
       where: { nombre }
@@ -32,7 +37,6 @@ const crearCategoria = async (req, res) => {
   }
 };
 
-// GET /api/categoria
 const obtenerCategorias = async (req, res) => {
   try {
     const categorias = await Categoria.findAll();

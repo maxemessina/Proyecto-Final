@@ -1,15 +1,30 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const { 
-  obtenerTransacciones, 
-  actualizarTransaccion, 
-  eliminarTransaccion 
-} = require('../controllers/transaccionController');
+const {
+  crearTransaccion,
+  obtenerTransacciones,
+  actualizarTransaccion,
+  eliminarTransaccion,
+} = require("../controllers/transaccionController");
 
-router.get('/', obtenerTransacciones);
+const transaccionController = require('../controllers/transaccionController');
+const { verificarToken } = require('../middleware/auth');
 
-router.put('/:id', actualizarTransaccion);
+router.post("/", crearTransaccion);
 
-router.delete('/:id', eliminarTransaccion);
+router.get("/", obtenerTransacciones);
+
+router.put("/:id", actualizarTransaccion);
+
+router.delete("/:id", eliminarTransaccion);
+
+router.get('/balance/:usuarioId', transaccionController.obtenerBalance);
+router.post("/", crearTransaccion);
+
+router.get("/", obtenerTransacciones);
+
+router.put("/:id", actualizarTransaccion);
+
+router.delete("/:id", eliminarTransaccion);
 
 module.exports = router;
