@@ -1,5 +1,5 @@
 const { Transaccion, Categoria, Usuario } = require("../models");
-const { fn, col } = require('sequelize');
+const { fn, col, Op } = require('sequelize');
 
 const crearTransaccion = async (req, res) => {
   try {
@@ -48,6 +48,58 @@ const obtenerTransacciones = async (req, res) => {
   } catch (error) {
     console.error("Error al obtener el historial de transacciones:", error);
     res.status(500).json({ error: "Error al obtener las transacciones" });
+  }
+};
+
+const obtenerTransaccionesFiltradas = async (req, res) => {
+  try {
+    const {
+      categoria_id,
+      usuario_id,
+      fechaDesde,
+      fechaHasta,
+    } = req.query;
+
+    const where = {};
+
+    if (categoria_id) {
+      where.categoria_id = categoria_id;
+    }
+
+    if (usuario_id) {
+      where.usuario_id = usuario_id;
+    }
+
+    if (fechaDesde && fechaHasta) {
+      where.fecha = {
+        [Op.between]: [fechaDesde, fechaHasta],
+      };
+    }
+
+    const transacciones = await Transaccion.findAll({
+      where,
+      include: [
+        {
+          model: Categoria,
+          attributes: ["id", "nombre", "tipo"],
+        },
+        {
+          model: Usuario,
+          attributes: ["id", "nombre", "email"],
+        },
+      ],
+      order: [
+        ["fecha", "DESC"],
+      ],
+    });
+
+    res.json(transacciones);
+  } catch (error) {
+    console.error("Error al filtrar transacciones:", error);
+
+    res.status(500).json({
+      error: "Error al filtrar transacciones",
+    });
   }
 };
 
@@ -158,6 +210,7 @@ const obtenerBalance = async (req, res) => {
 module.exports = {
   crearTransaccion,
   obtenerTransacciones,
+  obtenerTransaccionesFiltradas,
   actualizarTransaccion,
   eliminarTransaccion,
   obtenerBalance, 
