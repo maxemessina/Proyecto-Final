@@ -32,7 +32,6 @@ actualizarTransaccion (Controller): Permite la edición de un registro existente
 eliminarTransaccion (Controller): Endpoint destructivo accesible por DELETE para borrar transacciones específicas. Captura el ID desde la ruta y localiza el registro con findByPk(). Si la transacción no existe, retorna un error 404 como medida defensiva. Si es hallada con éxito, ejecuta el método destroy() proporcionado por el ORM para borrar permanentemente la fila correspondiente en la tabla de la base de datos. Culmina la petición retornando un mensaje JSON de confirmación exitosa.
 
 ### FUNCIONES UTILIZADAS PARA CATEGORÍAS
-
 En esta parte del proyecto hice el módulo de categorías. Sirven para clasificar las transacciones según su tipo, en este caso si son un ingreso o un egreso.
 
 Cada categoría tiene:
