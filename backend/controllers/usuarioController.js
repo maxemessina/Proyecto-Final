@@ -1,7 +1,7 @@
 const db = require('../models');
 const Usuario = db.Usuario || db.default.Usuario; // ajuste para compatibilidad con exportaciones
-// importamos el Transaccion cuando este listo
-
+const Transaccion = db.Transaccion || db.default.Transaccion; // agregado para poder mostrar transacciones en perfil
+const Categoria = db.Categoria || db.default.Categoria; // agregado para mostrar categoría en transacciones del perfil
 const { generarToken } = require('../middleware/auth');
 
 const register = async (req, res) => {
@@ -74,9 +74,19 @@ const perfil = async (req, res) => {
   try {
     // TODO: Obtener el usuario desde la base de datos usando el id de req.user
     // Pista: req.user fue seteado por el middleware verificarToken
-    const usuario = await Usuario.findByPk(req.params.id); { //req.params en vez req.user por ahora sin JWT
-        // COMPLETAR bloque cuando Transaccion este listo
-    }
+    const usuario = await Usuario.findByPk(req.params.id, { //req.params en vez req.user por ahora sin JWT
+        include: [
+        {
+          model: Transaccion,
+          attributes: ['id','monto', 'descripcion', 'fecha'],
+          include: [{              // ← anidado
+              model: Categoria,
+              attributes: ['nombre', 'tipo']
+            }
+          ]
+        }
+      ]
+    });
 
     if (!usuario) {
       return res.status(404).json({ error: 'Usuario no encontrado' });

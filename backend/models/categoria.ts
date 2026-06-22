@@ -1,10 +1,10 @@
 import { DataTypes, Sequelize, Model } from 'sequelize';
 
 export class Categoria extends Model {
-  public id!: number;
-  public nombre!: string;
-  public tipo!: string;
-  public readonly created_at!: Date;
+  declare id: number;
+  declare nombre: string;
+  declare tipo: string;
+  declare readonly created_at: Date;
 }
 
 export default (sequelize: Sequelize) => {

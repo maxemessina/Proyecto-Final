@@ -13,9 +13,8 @@ const { verificarToken } = require('../middleware/auth');
 
 router.post("/crear", crearTransaccion);
 
-router.get("/filtrar", obtenerTransaccionesFiltradas);gi
+router.get("/filtrar", obtenerTransaccionesFiltradas);
 
-router.get("/", obtenerTransacciones);
 router.get("/obtener", obtenerTransacciones);
 
 router.put("/actualizar/:id", actualizarTransaccion);
