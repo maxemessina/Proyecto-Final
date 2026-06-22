@@ -157,3 +157,21 @@ El cálculo del balance se divide en tres etapas funcionales:
 
 4. **Operación del Neto y `res.json` (Despacho):**
    Realiza la resta final ($ingresos - egresos$) para obtener el `balanceNeto` y ejecuta la función de respuesta de Express para enviar el objeto estructurado al cliente con un código de estado HTTP 200.
+
+## Relaciones entre tablas
+
+**Usuario -> Transacciones**
+  
+  Un usuario puede tener varias transacciones. Estas transacciones estan relacionadas con el usuario por la clave foranea "usuario_id"
+
+**Transacciones -> Usuario**
+  
+  Una Transaccion tiene un solo usuario, cada transaccion esta identificada a un id propio y relacionada con el usuario mediante "usuario_id". Esto facilita la navegacion entre tablas.
+
+  **Categoria -> Transaccion**
+
+  Una categoria puede tener Varias transacciones. Estas transacciones al igual que con usuarios. Se relaciona con la categoria mendiante la "categoria_id".
+
+  **Transaccion -> Categoria**
+
+   Cada transacción pertenece a una única categoría. La transaccion se relaciona con la categoria mediante "categoria_id",  categoría asociada, permitiendo identificar a qué categoría pertenece cada transacción.
