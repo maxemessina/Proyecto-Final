@@ -203,8 +203,8 @@ const obtenerBalance = async (req, res) => {
 
   return res.status(500).json({
       message: 'Error interno del servidor al calcular el balance'
-  });
-}
+    });
+  }
 };
 
 module.exports = {
@@ -215,4 +215,3 @@ module.exports = {
   eliminarTransaccion,
   obtenerBalance, 
 };
-

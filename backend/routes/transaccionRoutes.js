@@ -11,23 +11,17 @@ const {
 const transaccionController = require('../controllers/transaccionController');
 const { verificarToken } = require('../middleware/auth');
 
-router.post("/", crearTransaccion);
+router.post("/crear", crearTransaccion);
 
 router.get("/filtrar", obtenerTransaccionesFiltradas);gi
 
 router.get("/", obtenerTransacciones);
+router.get("/obtener", obtenerTransacciones);
 
-router.put("/:id", actualizarTransaccion);
+router.put("/actualizar/:id", actualizarTransaccion);
 
-router.delete("/:id", eliminarTransaccion);
+router.delete("/eliminar/:id", eliminarTransaccion);
 
 router.get('/balance/:usuarioId', transaccionController.obtenerBalance);
-router.post("/", crearTransaccion);
-
-router.get("/", obtenerTransacciones);
-
-router.put("/:id", actualizarTransaccion);
-
-router.delete("/:id", eliminarTransaccion);
 
 module.exports = router;
