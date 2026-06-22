@@ -134,6 +134,70 @@ Devuelve todas las categorías guardadas en la base de datos.
 
 ### Endpoints de Usuarios:
 
+#### POST Registrar Usuario
+
+Da de alta a un usuario en la plataforma. El modelo ejecuta validaciones nativas de Sequelize en segundo plano para asegurar que el email tenga un formato legítimo (`isEmail`) y que no se encuentre duplicado en PostgreSQL (`unique: true`).
+
+```http
+POST api/usuario/register
+```
+
+**Ejemplo:**
+
+```json
+{
+   "nombre": "Juan Pérez",
+   "email": "juan.perez@email.com",
+   "password": "PasswordSegura123"
+}
+```
+**Respuesta Exitosa (201 Created):**
+
+```json
+{
+   "id": 1,
+   "nombre": "Juan Pérez",
+   "email": "juan.perez@email.com",
+   "createdAt": "2026-06-21T21:40:00.000Z"
+}
+```
+
+![POST Register](./img/post-register.png)
+
+#### POST Login Usuario
+
+Autentica las credenciales de un usuario. Compara de forma segura el hash de la contraseña almacenada en la base de datos contra el string ingresado por el cliente.
+
+```http
+POST api/usuario/login
+```
+
+**Cuerpo de la Petición (JSON Body):**
+
+```json
+{
+   "email": "juan.perez@email.com",
+   "password": "PasswordSegura123"
+}
+```
+
+**Respuesta Exitosa (200 OK):**
+
+```json
+{
+   "message": "Inicio de sesión exitoso",
+   "usuario": {
+      "id": 1,
+      "nombre": "Juan Pérez",
+      "email": "juan.perez@email.com"
+   }
+}
+```
+
+![POST Login](./img/post-login.png)
+
+#### GET Perfil por ID
+
 // completar
 
 ### Endpoints de Transacciones:
@@ -146,7 +210,11 @@ Devuelve todas las categorías guardadas en la base de datos.
 
 ### Usuario (usuarioController):
 
-// Agregar explicacion
+* **`register`:** Método asíncrono encargado de procesar la creación de nuevas cuentas en el sistema. Captura las propiedades `nombre`, `email` y `password` desde el cuerpo de la petición (`req.body`). Aplica un enfoque defensivo ejecutando primero el método `findOne()` de Sequelize para verificar de forma temprana si el correo ya existe en el sistema. Si hay colisión de datos, detiene el flujo devolviendo un estado HTTP `400 Bad Request` indicando el conflicto. En caso contrario, invoca la función asíncrona `create()` para persistir el registro de forma permanente en PostgreSQL y retorna un estado `201 Created`.
+
+* **`login`:** Controlador diseñado para validar el acceso de los usuarios a la API. Utiliza el método `findOne({ where: { email } })` para localizar al usuario correspondiente. Si la búsqueda arroja un resultado nulo, o si al llamar al método de validación de contraseñas de la instancia (`validarPassword()`) se detecta una discrepancia en las credenciales criptográficas, el controlador interrumpe el ciclo devolviendo inmediatamente un estado HTTP `401 Unauthorized` por motivos de seguridad. Si los datos son correctos, expide una respuesta con estado `200 OK` adjuntando los datos esenciales del usuario para el manejo del estado en la aplicación.
+
+* **`perfil`:** // Completar
 
 ### Categoria (categoriaController):
 
