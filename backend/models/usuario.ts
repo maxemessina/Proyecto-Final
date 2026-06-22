@@ -2,11 +2,11 @@ import { DataTypes, Sequelize, Model } from 'sequelize';
 import bcrypt from 'bcryptjs';
 
 export class Usuario extends Model {
-  public id!: number;
-  public nombre!: string;
-  public email!: string;
-  public password!: string;
-  public readonly created_at!: Date;
+  declare id: number;
+  declare nombre: string;
+  declare email: string;
+  declare password: string;
+  declare readonly created_at: Date;
 
   // TODO: Comparar la contraseña recibida con el hash almacenado
   public async validarPassword(passwordRecibida: string): Promise<boolean> {

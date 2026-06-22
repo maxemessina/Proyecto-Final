@@ -1,13 +1,13 @@
 import { DataTypes, Sequelize, Model } from "sequelize";
 
 export class Transaccion extends Model {
-  public id!: number;
-  public monto!: number;
-  public descripcion!: string;
-  public fecha!: Date;
-  public usuario_id!: number;
-  public categoria_id!: number;
-  public readonly created_at!: Date;
+  declare id: number;
+  declare monto: number;
+  declare descripcion: string;
+  declare fecha: Date;
+  declare usuario_id: number;
+  declare categoria_id: number;
+  declare readonly created_at: Date;
 }
 
 export default (sequelize: Sequelize) => {
