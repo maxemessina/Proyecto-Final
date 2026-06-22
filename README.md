@@ -30,3 +30,58 @@ obtenerTransacciones (Controller): Función asíncrona encargada de leer el hist
 actualizarTransaccion (Controller): Permite la edición de un registro existente mediante el método PUT. Primero, extrae el identificador dinámico de la ruta a través de req.params.id y busca la coincidencia en la base de datos usando findByPk(). Si el ID no existe, frena la ejecución y devuelve de forma temprana un error 404 (No encontrada). Si lo encuentra, evalúa uno a uno qué campos fueron enviados en el cuerpo de la petición (evaluando si son diferentes de undefined) para reemplazar únicamente los datos modificados y conservar el resto intacto. Finalmente, ejecuta el método update() de Sequelize y devuelve la transacción actualizada.
 
 eliminarTransaccion (Controller): Endpoint destructivo accesible por DELETE para borrar transacciones específicas. Captura el ID desde la ruta y localiza el registro con findByPk(). Si la transacción no existe, retorna un error 404 como medida defensiva. Si es hallada con éxito, ejecuta el método destroy() proporcionado por el ORM para borrar permanentemente la fila correspondiente en la tabla de la base de datos. Culmina la petición retornando un mensaje JSON de confirmación exitosa.
+
+### FUNCIONES UTILIZADAS PARA CATEGORÍAS
+
+En esta parte del proyecto hice el módulo de categorías. Sirven para clasificar las transacciones según su tipo, en este caso si son un ingreso o un egreso.
+
+Cada categoría tiene:
+* `id`
+* `nombre`
+* `tipo` (`ingreso` o `egreso`)
+*  fecha en la que fue creada.
+
+### Crear categoría
+Permite crear una nueva categoría.
+
+**Endpoint:**
+```http
+POST /api/categoria/crear
+```
+
+**Ejemplo:**
+```json
+{
+  "nombre": "Salud",
+  "tipo": "egreso"
+}
+```
+Antes de crearla se verifica que no exista otra categoría con el mismo nombre.
+
+### Obtener categorías
+
+**Endpoint:**
+```http
+GET /api/categoria/obtener
+```
+Devuelve todas las categorías guardadas en la base de datos.
+
+### Seeder
+
+Se creó para cargar algunas categorías de ejemplo y no tener que agregarlas manualmente cada vez que se levanta el proyecto.
+
+Las categorías agregadas son:
+* Sueldo
+* Comida 
+* Transporte 
+* Actividades
+* Ropa 
+
+Para ejecutarlo utilizamos:
+`npx sequelize-cli db:seed:all`
+
+### PRUEBAS EN POSTMAN
+
+![GET Categorías](backend/images/get-categorias.png)
+
+![POST Categorías](backend/images/post-categorias.png)
