@@ -105,36 +105,6 @@ Todos los servicios corren dentro de contenedores Docker y se comunican a traves
 
 ## Endpoints Implementados
 
-### Endpoints de Categorias:
-
-#### Crear categoría
-
-Permite crear una nueva categoría.
-
-```http
-POST /api/categoria/crear
-```
-
-**Ejemplo:**
-```json
-{
-  "nombre": "Salud",
-  "tipo": "egreso"
-}
-```
-Antes de crearla se verifica que no exista otra categoría con el mismo nombre.
-
-![POST Categorías](./img/post-categorias.png)
-
-### Obtener categorías
-
-```http
-GET /api/categoria/obtener
-```
-Devuelve todas las categorías guardadas en la base de datos.
-
-![GET Categorías](./img/get-categorias.png)
-
 ### Endpoints de Usuarios:
 
 // completar
@@ -151,9 +121,93 @@ Devuelve todas las categorías guardadas en la base de datos.
 
 // Agregar explicacion
 
-### Categoria (categoriaController):
+---
 
-// Agregar explicacion
+### FUNCIONES UTILIZADAS EN CATEGORIAS
+En esta parte del proyecto realicé el módulo de categorías, que sirve para clasificar las transacciones según si corresponden a un ingreso o un egreso.
+
+Cada categoría tiene:
+* `id`
+* `nombre`
+* `tipo` (`ingreso` o `egreso`)
+* `created_at`
+
+## Categorías (categoriaController)
+`crearCategoria`: Permite crear nuevas categorías. Recibe `nombre` y `tipo` desde `req.body`, valida que no exista una categoría con el mismo nombre y, si todo es correcto, la guarda en la base de datos utilizando `create()`, devolviendo la categoría creada con estado 201 o un error 500 en caso de fallo.
+
+`obtenerCategorias`: Obtiene todas las categorías registradas utilizando `findAll()` del modelo. Devuelve un array en formato JSON o un error 500 si ocurre un problema en la consulta.
+
+## Categoría (categoriaModel)
+Define la estructura de la tabla categorias en la base de datos.
+
+* id: identificador único autoincremental.
+* nombre: nombre de la categoría (obligatorio y no vacío).
+* tipo: define si la categoría es `ingreso` o `egreso`.
+
+El modelo utiliza timestamps automáticos, registrando únicamente `created_at`.
+
+## Categorías (categoriaRoutes)
+Define los endpoints disponibles para el recurso categorías:
+
+POST `/categorias`
+Llama al controller `crearCategoria` para crear una nueva categoría.
+
+**Endpoint:**
+
+```http
+POST /api/categoria/crear
+```
+
+**Ejemplo:**
+```json
+{
+  "nombre": "Salud",
+  "tipo": "egreso"
+}
+```
+
+**Mensaje exitoso:**
+```json
+{
+  "message": "Categoría creada exitosamente",
+  "categoria": {
+    "id": 7,
+    "nombre": "Salud",
+    "tipo": "egreso"
+  }
+}
+```
+
+GET `/categorias`
+Llama al controller `obtenerCategorias` para listar todas las categorías.
+
+**Endpoint:**
+
+```http
+GET /api/categoria/obtener
+```
+
+Este endpoint devuelve todas las categorías almacenadas en la base de datos.
+
+## Categorías iniciales (categoriaSeeder)
+Se creó para cargar algunas categorías de ejemplo y no tener que agregarlas manualmente cada vez que se inicia el proyecto.
+Este proceso inserta categorías predeterminadas utilizando el método `bulkInsert()` de Sequelize.
+
+Se crean categorías básicas del sistema, por ejemplo:
+* Categorías de tipo `ingreso`.
+* Categorías de tipo `egreso`.
+
+Para ejecutar el seeder utilizamos:
+```bash
+npx sequelize-cli db:seed:all
+```
+
+## PRUEBAS EN POSTMAN
+![GET Categorías](backend/images/get-categorias.png)
+
+![POST Categorías](backend/images/post-categorias.png)
+
+---
 
 ### Transacciones (transacionController):
 
