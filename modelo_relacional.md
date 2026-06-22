@@ -68,3 +68,21 @@ descripcion  | TEXT                     | Detalles opcionales
 fecha        | DATE                     | Fecha de la transacción
 created_at   | TIMESTAMP                | Cuándo se registró
 updated_at   | TIMESTAMP                | Última actualización
+
+## Relaciones entre tablas
+
+**Usuario -> Transacciones**
+
+Un usuario puede tener varias transacciones. Estas transacciones estan relacionadas con el usuario por la clave foranea "usuario_id"
+
+**Transacciones -> Usuario**
+
+Una Transaccion tiene un solo usuario, cada transaccion esta identificada a un id propio y relacionada con el usuario mediante "usuario_id". Esto facilita la navegacion entre tablas.
+
+**Categoria -> Transaccion**
+
+Una categoria puede tener Varias transacciones. Estas transacciones al igual que con usuarios. Se relaciona con la categoria mendiante la "categoria_id".
+
+**Transaccion -> Categoria**
+
+Cada transacción pertenece a una única categoría. La transaccion se relaciona con la categoria mediante "categoria_id", `categoría asociada,` permitiendo identificar a qué categoría pertenece cada transacción.`

@@ -10,22 +10,22 @@ Esta aplicación es una plataforma para registrar, categorizar y analizar ingres
 
 ## Grupo N°16 - Integrantes
 
-- **Priscila Arrimada:** POST y GET de categoria + seeders.
-- **Tomás Astudillo:** POST transaccion y relaciones entre tablas.
-- **Valentina Guerrieri:** GET transaccion con filtros.
-- **Máximo Messina:** POST, GET usuario y GET usuario por ID + migraciones.
-- **Máximo Moraes:** GET transaccion por ID, PUT y DELETE.
-- **Lucas Rojas:** GET de calculo de transacciones (balance).
+* **Priscila Arrimada:** POST y GET de categoria + seeders.
+* **Tomás Astudillo:** POST transaccion y relaciones entre tablas.
+* **Valentina Guerrieri:** GET transaccion con filtros.
+* **Máximo Messina:** POST, GET usuario y GET usuario por ID + migraciones.
+* **Máximo Moraes:** GET transaccion por ID, PUT y DELETE.
+* **Lucas Rojas:** GET de calculo de transacciones (balance).
 
 ---
 
 ## Tecnologias aplicadas
 
-- **Backend:** Node.js, Express, TypeScript / JavaScript.
-- **Base de Datos:** PostgreSQL.
-- **ORM:** Sequelize.
-- **Infraestructura:** Docker & Docker Compose (Base de datos, Caddy, pgAdmin).
-- **Control de Versiones:** Git & GitHub.
+* **Backend:** Node.js, Express, TypeScript / JavaScript.
+* **Base de Datos:** PostgreSQL.
+* **ORM:** Sequelize.
+* **Infraestructura:** Docker & Docker Compose (Base de datos, Caddy, pgAdmin).
+* **Control de Versiones:** Git & GitHub.
 
 ## Metodología de Trabajo con Git y GitHub
 
@@ -62,14 +62,14 @@ El equipo implementó un flujo de trabajo estructurado basado en ramas:
 
 Todos los servicios corren dentro de contenedores Docker y se comunican a traves de una red interna. Caddy actua como reverse proxy: recibe todo el trafico en el puerto 80 y lo redirige al frontend o al backend segun la URL.
 
-| Servicio     | Tecnologia          | Puerto | Funcion                        |
-| ------------ | ------------------- | ------ | ------------------------------ |
-| **Frontend** | React 18            | 3000   | Interfaz de usuario            |
-| **Backend**  | Express + Sequelize | 3001   | API REST                       |
-| **Database** | PostgreSQL 15       | 5432   | Base de datos relacional       |
-| **Cache**    | Redis 7             | 6379   | Cache y sesiones               |
-| **Proxy**    | Caddy 2             | 80     | Reverse proxy                  |
-| **pgAdmin**  | pgAdmin 4           | 5050   | Administracion visual de la BD |
+Servicio     | Tecnologia          | Puerto | Funcion
+-------------|---------------------|--------|---------
+**Frontend** | React 18            | 3000   | Interfaz de usuario
+**Backend**  | Express + Sequelize | 3001   | API REST
+**Database** | PostgreSQL 15       | 5432   | Base de datos relacional
+**Cache**    | Redis 7             | 6379   | Cache y sesiones
+**Proxy**    | Caddy 2             | 80     | Reverse proxy
+**pgAdmin**  | pgAdmin 4           | 5050   | Administracion visual de la BD
 
 [Para iniciar el proyecto, podes seguir esta guia.](./iniciar_proyecto.md)
 
@@ -99,11 +99,41 @@ Todos los servicios corren dentro de contenedores Docker y se comunican a traves
  ┣ iniciar_proyecto.md         # Guia para iniciar proyecto
  ┣ modelo_relacional.md        # Modelo relacional del proyecto
  ┗ README.md                   # Documentación del proyecto
-```
+ ```
 
 ---
 
 ## Endpoints Implementados
+
+### Endpoints de Categorias:
+
+#### Crear categoría
+
+Permite crear una nueva categoría.
+
+```http
+POST /api/categoria/crear
+```
+
+**Ejemplo:**
+```json
+{
+  "nombre": "Salud",
+  "tipo": "egreso"
+}
+```
+Antes de crearla se verifica que no exista otra categoría con el mismo nombre.
+
+![POST Categorías](./img/post-categorias.png)
+
+### Obtener categorías
+
+```http
+GET /api/categoria/obtener
+```
+Devuelve todas las categorías guardadas en la base de datos.
+
+![GET Categorías](./img/get-categorias.png)
 
 ### Endpoints de Usuarios:
 
@@ -177,6 +207,8 @@ POST api/usuario/login
 
 // completar
 
+*GET /transaccion/filtrar:* Permite consultar transacciones aplicando filtros por usuario, categoria o rango de fechas. Utiliza parametros de consulta (req.query) y operadores de Sequelize para construir la busqueda. Devuelve las transacciones encontradas junto con los datos relacionados de Usuario y Categoria.
+
 ---
 
 ## Explicación de Funciones
@@ -189,106 +221,19 @@ POST api/usuario/login
 
 * **`perfil`:** // Completar
 
----
+### Categoria (categoriaController):
 
-### FUNCIONES UTILIZADAS EN CATEGORIAS
-En esta parte del proyecto realicé el módulo de categorías, que sirve para clasificar las transacciones según si corresponden a un ingreso o un egreso.
-
-Cada categoría tiene:
-* `id`
-* `nombre`
-* `tipo` (`ingreso` o `egreso`)
-* `created_at`
-
-## Categorías (categoriaController)
 `crearCategoria`: Permite crear nuevas categorías. Recibe `nombre` y `tipo` desde `req.body`, valida que no exista una categoría con el mismo nombre y, si todo es correcto, la guarda en la base de datos utilizando `create()`, devolviendo la categoría creada con estado 201 o un error 500 en caso de fallo.
-
-* **`obtenerTransacciones`:** Función asíncrona encargada de leer el historial completo mediante una petición GET. Utiliza el método findAll() del modelo Transaccion. Para evitar devolver solo identificadores numéricos, implementa la propiedad include para hacer un cruce relacional (JOIN) con los modelos Categoria y Usuario, extrayendo atributos legibles y específicos como el nombre, email y tipo. Además, ordena los resultados de forma descendente (los más recientes primero) basándose en la fecha asignada y la fecha de creación del registro. Responde con los datos en formato JSON o un error 500 en caso de fallo.
-* **`actualizarTransaccion`:** Permite la edición de un registro existente mediante el método PUT. Primero, extrae el identificador dinámico de la ruta a través de req.params.id y busca la coincidencia en la base de datos usando findByPk(). Si el ID no existe, frena la ejecución y devuelve de forma temprana un error 404 (No encontrada). Si lo encuentra, evalúa uno a uno qué campos fueron enviados en el cuerpo de la petición (evaluando si son diferentes de undefined) para reemplazar únicamente los datos modificados y conservar el resto intacto. Finalmente, ejecuta el método update() de Sequelize y devuelve la transacción actualizada.
-`obtenerCategorias`: Obtiene todas las categorías registradas utilizando `findAll()` del modelo. Devuelve un array en formato JSON o un error 500 si ocurre un problema en la consulta.
-
-## Categoría (categoriaModel)
-Define la estructura de la tabla categorias en la base de datos.
-
-* id: identificador único autoincremental.
-* nombre: nombre de la categoría (obligatorio y no vacío).
-* tipo: define si la categoría es `ingreso` o `egreso`.
-
-El modelo utiliza timestamps automáticos, registrando únicamente `created_at`.
-
-## Categorías (categoriaRoutes)
-Define los endpoints disponibles para el recurso categorías:
-
-POST `/categorias`
-Llama al controller `crearCategoria` para crear una nueva categoría.
-
-**Endpoint:**
-
-```http
-POST /api/categoria/crear
-```
-
-**Ejemplo:**
-```json
-{
-  "nombre": "Salud",
-  "tipo": "egreso"
-}
-```
-
-**Mensaje exitoso:**
-```json
-{
-  "message": "Categoría creada exitosamente",
-  "categoria": {
-    "id": 7,
-    "nombre": "Salud",
-    "tipo": "egreso"
-  }
-}
-```
-
-GET `/categorias`
-Llama al controller `obtenerCategorias` para listar todas las categorías.
-
-**Endpoint:**
-
-```http
-GET /api/categoria/obtener
-```
-
-Este endpoint devuelve todas las categorías almacenadas en la base de datos.
-
-## Categorías iniciales (categoriaSeeder)
-Se creó para cargar algunas categorías de ejemplo y no tener que agregarlas manualmente cada vez que se inicia el proyecto.
-Este proceso inserta categorías predeterminadas utilizando el método `bulkInsert()` de Sequelize.
-
-Se crean categorías básicas del sistema, por ejemplo:
-* Categorías de tipo `ingreso`.
-* Categorías de tipo `egreso`.
-
-Para ejecutar el seeder utilizamos:
-```bash
-npx sequelize-cli db:seed:all
-```
-
-## PRUEBAS EN POSTMAN
-![GET Categorías](backend/images/get-categorias.png)
-
-![POST Categorías](backend/images/post-categorias.png)
-
----
 
 ### Transacciones (transacionController):
 
-- **`crearTransaccion`:** Intercepta peticiones POST para registrar nuevas operaciones. Extrae el monto, descripción, fecha, usuario_id y categoria_id enviados en el cuerpo de la petición (req.body). Utiliza el método create() del ORM Sequelize para guardar el nuevo registro en la base de datos PostgreSQL. Si la operación es exitosa, devuelve un estado 201 (Created) junto con un mensaje de éxito y el objeto de la transacción. Todo el bloque está protegido por un try/catch que devuelve un error 500 si falla la inserción.
+* **`crearTransaccion`:** Intercepta peticiones POST para registrar nuevas operaciones. Extrae el monto, descripción, fecha, usuario_id y categoria_id enviados en el cuerpo de la petición (req.body). Utiliza el método create() del ORM Sequelize para guardar el nuevo registro en la base de datos PostgreSQL. Si la operación es exitosa, devuelve un estado 201 (Created) junto con un mensaje de éxito y el objeto de la transacción. Todo el bloque está protegido por un try/catch que devuelve un error 500 si falla la inserción.
 
-- **`obtenerTransacciones`:** Función asíncrona encargada de leer el historial completo mediante una petición GET. Utiliza el método findAll() del modelo Transaccion. Para evitar devolver solo identificadores numéricos, implementa la propiedad include para hacer un cruce relacional (JOIN) con los modelos Categoria y Usuario, extrayendo atributos legibles y específicos como el nombre, email y tipo. Además, ordena los resultados de forma descendente (los más recientes primero) basándose en la fecha asignada y la fecha de creación del registro. Responde con los datos en formato JSON o un error 500 en caso de fallo.
+* **`obtenerTransacciones`:** Función asíncrona encargada de leer el historial completo mediante una petición GET. Utiliza el método findAll() del modelo Transaccion. Para evitar devolver solo identificadores numéricos, implementa la propiedad include para hacer un cruce relacional (JOIN) con los modelos Categoria y Usuario, extrayendo atributos legibles y específicos como el nombre, email y tipo. Además, ordena los resultados de forma descendente (los más recientes primero) basándose en la fecha asignada y la fecha de creación del registro. Responde con los datos en formato JSON o un error 500 en caso de fallo.
 
-- **`actualizarTransaccion`:** Permite la edición de un registro existente mediante el método PUT. Primero, extrae el identificador dinámico de la ruta a través de req.params.id y busca la coincidencia en la base de datos usando findByPk(). Si el ID no existe, frena la ejecución y devuelve de forma temprana un error 404 (No encontrada). Si lo encuentra, evalúa uno a uno qué campos fueron enviados en el cuerpo de la petición (evaluando si son diferentes de undefined) para reemplazar únicamente los datos modificados y conservar el resto intacto. Finalmente, ejecuta el método update() de Sequelize y devuelve la transacción actualizada.
+* **`actualizarTransaccion`:** Permite la edición de un registro existente mediante el método PUT. Primero, extrae el identificador dinámico de la ruta a través de req.params.id y busca la coincidencia en la base de datos usando findByPk(). Si el ID no existe, frena la ejecución y devuelve de forma temprana un error 404 (No encontrada). Si lo encuentra, evalúa uno a uno qué campos fueron enviados en el cuerpo de la petición (evaluando si son diferentes de undefined) para reemplazar únicamente los datos modificados y conservar el resto intacto. Finalmente, ejecuta el método update() de Sequelize y devuelve la transacción actualizada.
 
-- **`eliminarTransaccion`:** Endpoint destructivo accesible por DELETE para borrar transacciones específicas. Captura el ID desde la ruta y localiza el registro con findByPk(). Si la transacción no existe, retorna un error 404 como medida defensiva. Si es hallada con éxito, ejecuta el método destroy() proporcionado por el ORM para borrar permanentemente la fila correspondiente en la tabla de la base de datos. Culmina la petición retornando un mensaje JSON de confirmación exitosa.
-  Explicación de Funciones de Transacciones
+* **`eliminarTransaccion`:** Endpoint destructivo accesible por DELETE para borrar transacciones específicas. Captura el ID desde la ruta y localiza el registro con findByPk(). Si la transacción no existe, retorna un error 404 como medida defensiva. Si es hallada con éxito, ejecuta el método destroy() proporcionado por el ORM para borrar permanentemente la fila correspondiente en la tabla de la base de datos. Culmina la petición retornando un mensaje JSON de confirmación exitosa.
 
 * **`obtenerTransaccionesFiltradas`:** Esta funcion sirve para no tener que traer todas las transacciones siempre que quieras consultar bajo algun criterio mas especifico. Se le pueden pasar filtros como por ejemplo, una categoria, un rango de fechas y te devuelve solo esas transacciones. Esta funcion se utiliza mediante parametros de consulta (`req.query`).
 Primero extrae los parametros recibidos desde la URL y construye un objeto `where` que utiliza Sequelize para generar la consulta correspondiente. Para el filtrado por fechas utiliza el operador `Op.between`, que permite recuperar las transacciones comprendidas entre dos fechas determinadas.
@@ -309,49 +254,3 @@ El cálculo del balance se divide en tres etapas funcionales:
 
 4. **Operación del Neto y `res.json` (Despacho):**
    Realiza la resta final ($ingresos - egresos$) para obtener el `balanceNeto` y ejecuta la función de respuesta de Express para enviar el objeto estructurado al cliente con un código de estado HTTP 200.
-
-Explicación de Funciones de Transacciones
-
-crearTransaccion (Controller): Intercepta peticiones POST para registrar nuevas operaciones. Extrae el monto, descripción, fecha, usuario_id y categoria_id enviados en el cuerpo de la petición (req.body). Utiliza el método create() del ORM Sequelize para guardar el nuevo registro en la base de datos PostgreSQL. Si la operación es exitosa, devuelve un estado 201 (Created) junto con un mensaje de éxito y el objeto de la transacción. Todo el bloque está protegido por un try/catch que devuelve un error 500 si falla la inserción.
-
-obtenerTransacciones (Controller): Función asíncrona encargada de leer el historial completo mediante una petición GET. Utiliza el método findAll() del modelo Transaccion. Para evitar devolver solo identificadores numéricos, implementa la propiedad include para hacer un cruce relacional (JOIN) con los modelos Categoria y Usuario, extrayendo atributos legibles y específicos como el nombre, email y tipo. Además, ordena los resultados de forma descendente (los más recientes primero) basándose en la fecha asignada y la fecha de creación del registro. Responde con los datos en formato JSON o un error 500 en caso de fallo.
-
-actualizarTransaccion (Controller): Permite la edición de un registro existente mediante el método PUT. Primero, extrae el identificador dinámico de la ruta a través de req.params.id y busca la coincidencia en la base de datos usando findByPk(). Si el ID no existe, frena la ejecución y devuelve de forma temprana un error 404 (No encontrada). Si lo encuentra, evalúa uno a uno qué campos fueron enviados en el cuerpo de la petición (evaluando si son diferentes de undefined) para reemplazar únicamente los datos modificados y conservar el resto intacto. Finalmente, ejecuta el método update() de Sequelize y devuelve la transacción actualizada.
-
-eliminarTransaccion (Controller): Endpoint destructivo accesible por DELETE para borrar transacciones específicas. Captura el ID desde la ruta y localiza el registro con findByPk(). Si la transacción no existe, retorna un error 404 como medida defensiva. Si es hallada con éxito, ejecuta el método destroy() proporcionado por el ORM para borrar permanentemente la fila correspondiente en la tabla de la base de datos. Culmina la petición retornando un mensaje JSON de confirmación exitosa.
-Explicación de Funciones de Transacciones
-
-crearTransaccion (Controller): Intercepta peticiones POST para registrar nuevas operaciones. Extrae el monto, descripción, fecha, usuario_id y categoria_id enviados en el cuerpo de la petición (req.body). Utiliza el método create() del ORM Sequelize para guardar el nuevo registro en la base de datos PostgreSQL. Si la operación es exitosa, devuelve un estado 201 (Created) junto con un mensaje de éxito y el objeto de la transacción. Todo el bloque está protegido por un try/catch que devuelve un error 500 si falla la inserción.
-
-obtenerTransacciones (Controller): Función asíncrona encargada de leer el historial completo mediante una petición GET. Utiliza el método findAll() del modelo Transaccion. Para evitar devolver solo identificadores numéricos, implementa la propiedad include para hacer un cruce relacional (JOIN) con los modelos Categoria y Usuario, extrayendo atributos legibles y específicos como el nombre, email y tipo. Además, ordena los resultados de forma descendente (los más recientes primero) basándose en la fecha asignada y la fecha de creación del registro. Responde con los datos en formato JSON o un error 500 en caso de fallo.
-
-actualizarTransaccion (Controller): Permite la edición de un registro existente mediante el método PUT. Primero, extrae el identificador dinámico de la ruta a través de req.params.id y busca la coincidencia en la base de datos usando findByPk(). Si el ID no existe, frena la ejecución y devuelve de forma temprana un error 404 (No encontrada). Si lo encuentra, evalúa uno a uno qué campos fueron enviados en el cuerpo de la petición (evaluando si son diferentes de undefined) para reemplazar únicamente los datos modificados y conservar el resto intacto. Finalmente, ejecuta el método update() de Sequelize y devuelve la transacción actualizada.
-
-eliminarTransaccion (Controller): Endpoint destructivo accesible por DELETE para borrar transacciones específicas. Captura el ID desde la ruta y localiza el registro con findByPk(). Si la transacción no existe, retorna un error 404 como medida defensiva. Si es hallada con éxito, ejecuta el método destroy() proporcionado por el ORM para borrar permanentemente la fila correspondiente en la tabla de la base de datos. Culmina la petición retornando un mensaje JSON de confirmación exitosa.
-
-5. ## explicacion de de transacciones: Filtro de Transacciones ##
-**obtenerTransaccionesFiltradas (Controller):** Esta funcion sirve para no tener que traer todas las transacciones siempre que quieras consultar bajo algun criterio mas especifico. Se le pueden pasar filtros como por ejemplo, una categoria, unrango de fechas y te devuelve solo esas transacciones. Esta funcion se utiliza mediante parametros de consulta (`req.query`).
-Primero extrae los parametros recibidos desde la URL y construye un objeto `where` que utiliza Sequelize para generar la consulta correspondiente. Para el filtrado por fechas utiliza el operador `Op.between`, que permite recuperar las transacciones comprendidas entre dos fechas determinadas.
-La consulta se realiza mediante `findAll()`, incorporando informacion relacionada de los modelos `Categoria` y `Usuario` mediante la propiedad `include`, evitando devolver solo identificadores numericos. Los resultados se ordenan por fecha de forma descendente y se envian al cliente en formato JSON.
-Toda la operacion se encuentra protegida por un `try/catch`, devolviendo un error 500 en caso de producirse algun fallo durante la consulta, como en el resto de funciones.
-*GET /transaccion/filtrar:* Permite consultar transacciones aplicando filtros por usuario, categoria o rango de fechas. Utiliza parametros de consulta (req.query) y operadores de Sequelize para construir la busqueda. Devuelve las transacciones encontradas junto con los datos relacionados de Usuario y Categoria.
-## POSTMAN
-Se adjunta la captura `balance.png`, donde se muestra la creacion de una categoria, el registro de una transaccion y la consulta del endpoint `/api/transaccion/balance/:usuarioId`, verificando el calculo correcto de ingresos, egresos y balance neto.
-
-## Relaciones entre tablas
-
-**Usuario -> Transacciones**
-
-Un usuario puede tener varias transacciones. Estas transacciones estan relacionadas con el usuario por la clave foranea "usuario_id"
-
-**Transacciones -> Usuario**
-
-Una Transaccion tiene un solo usuario, cada transaccion esta identificada a un id propio y relacionada con el usuario mediante "usuario_id". Esto facilita la navegacion entre tablas.
-
-**Categoria -> Transaccion**
-
-Una categoria puede tener Varias transacciones. Estas transacciones al igual que con usuarios. Se relaciona con la categoria mendiante la "categoria_id".
-
-**Transaccion -> Categoria**
-
-Cada transacción pertenece a una única categoría. La transaccion se relaciona con la categoria mediante "categoria_id", `categoría asociada,` permitiendo identificar a qué categoría pertenece cada transacción.`
