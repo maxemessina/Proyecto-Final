@@ -151,9 +151,6 @@ const obtenerBalance = async (req, res) => {
     return res.status(500).json({
       message: 'Error interno del servidor al calcular el balance'
     });
-  } catch (error) {
-    console.error("Error al eliminar la transaccion:", error);
-    res.status(500).json({ error: "Error al eliminar la transaccion" });
   }
 };
 

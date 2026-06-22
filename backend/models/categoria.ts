@@ -25,7 +25,7 @@ export default (sequelize: Sequelize) => {
         },
       },
       tipo: {
-        type: DataTypes.ENUM('Ingreso', 'Egreso'),
+        type: DataTypes.ENUM('ingreso', 'egreso'),
         allowNull: false,
       },
     },

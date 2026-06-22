@@ -6,10 +6,7 @@ const {
   obtenerCategorias
 } = require('../controllers/categoriaController');
 
-// POST /api/categoria
-router.post('/', crearCategoria);
-
-// GET /api/categoria
-router.get('/', obtenerCategorias);
+router.post('/crear', crearCategoria);
+router.get('/obtener', obtenerCategorias);
 
 module.exports = router;
