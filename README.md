@@ -83,18 +83,19 @@ Servicio     | Tecnologia          | Puerto | Funcion
  ┃ ┣ 📂 config/                # Configuraciones (Ej: Conexión de Sequelize a la BD)
  ┃ ┣ 📂 controllers/           # Controladores (Lógica de negocio: Usuarios, Categorías, Transacciones)
  ┃ ┣ 📂 middleware/            # Interceptores (Ej: Autenticación, Validaciones)
- ┃ ┣ 📂 models/                # Modelos de Sequelize (Definición de tablas e index de relaciones)
  ┃ ┣ 📂 migrations/            # Migraciones de base de datos
+ ┃ ┣ 📂 models/                # Modelos de Sequelize (Definición de tablas e index de relaciones)
  ┃ ┣ 📂 routes/                # Rutas de la API (Endpoints GET, POST, PUT, DELETE)
  ┃ ┣ 📂 seeders/               # Datos de prueba
- ┃ ┣ server.js                 # Clase principal del servidor Express
- ┃ ┣ package.json              # Dependencias del Backend
  ┃ ┣ Dockerfile                # Imagen docker
+ ┃ ┣ package.json              # Dependencias del Backend
+ ┃ ┣ server.js                 # Clase principal del servidor Express
  ┃ ┗ tsconfig.json             # Config de ts
- ┣ 📂 frontend/                # (En desarrollo para el Proyecto Final) Aplicación React
- ┣ 📂 database/                # Scripts SQL de inicialización (init.sql)
- ┣ 📂 pgadmin/                 # Configuración de interfaz gráfica para la BD
  ┣ 📂 caddy/                   # Configuración del proxy reverso (Caddyfile)
+ ┣ 📂 database/                # Scripts SQL de inicialización (init.sql)
+ ┣ 📂 frontend/                # (En desarrollo para el Proyecto Final) Aplicación React
+ ┣ 📂 img/                     # Imagenes para documentacion
+ ┣ 📂 pgadmin/                 # Configuración de interfaz gráfica para la BD
  ┣ docker-compose.yml          # Orquestador de contenedores (App, DB, pgAdmin, Caddy)
  ┣ iniciar_proyecto.md         # Guia para iniciar proyecto
  ┣ modelo_relacional.md        # Modelo relacional del proyecto
@@ -201,13 +202,185 @@ POST api/usuario/login
 
 #### GET Perfil por ID
 
-// completar
+Retorna el perfil completo de un usuario específico a partir de su id en la ruta. Utiliza `findByPk()` con un `include` anidado en dos niveles: incorpora las transacciones del usuario y, dentro de cada una, el detalle de la categoría correspondiente.
+
+```http
+GET api/usuario/perfil/:id
+```
+
+**Respuesta Exitosa (200 OK):**
+
+```json
+{
+  "usuario": {
+    "id": 1,
+    "nombre": "Juan Pérez",
+    "email": "juan.perez@email.com",
+    "Transaccions": [
+      {
+        "id": 3,
+        "monto": "5000.00",
+        "descripcion": "Sueldo mensual",
+        "fecha": "2026-06-01T00:00:00.000Z",
+        "Categorium": {
+          "nombre": "Trabajo",
+          "tipo": "ingreso"
+        }
+      }
+    ]
+  }
+}
+```
+
+![GET Perfil por ID](./img/get-perfil-id.png)
 
 ### Endpoints de Transacciones:
 
-// completar
+#### GET /transaccion/obtener
 
-*GET /transaccion/filtrar:* Permite consultar transacciones aplicando filtros por usuario, categoria o rango de fechas. Utiliza parametros de consulta (req.query) y operadores de Sequelize para construir la busqueda. Devuelve las transacciones encontradas junto con los datos relacionados de Usuario y Categoria.
+Devuelve el historial completo de todas las transacciones registradas en la base de datos. Realiza un JOIN con los modelos `Categoria` y `Usuario` para exponer datos legibles en lugar de solo claves foráneas. Los resultados se ordenan de forma descendente por fecha de transacción.
+
+```http
+GET /api/transaccion/obtener
+```
+
+**Respuesta Exitosa (200 OK):**
+
+```json
+[
+  {
+    "id": 3,
+    "monto": "5000.00",
+    "descripcion": "Sueldo mensual",
+    "fecha": "2026-06-01T00:00:00.000Z",
+    "Categorium": {
+      "id": 2,
+      "nombre": "Trabajo",
+      "tipo": "ingreso"
+    },
+    "Usuario": {
+      "id": 1,
+      "nombre": "Juan Pérez",
+      "email": "juan.perez@email.com"
+    }
+  }
+]
+```
+
+![GET Transaccion](./img/get-transaccion.png)
+
+#### GET /transaccion/filtrar
+
+Permite consultar transacciones aplicando filtros por usuario, categoria o rango de fechas. Utiliza parametros de consulta (req.query) y operadores de Sequelize para construir la busqueda. Devuelve las transacciones encontradas junto con los datos relacionados de Usuario y Categoria.
+
+```http
+GET /api/transaccion/filtrar?usuario_id=1&fechaDesde=2026-01-01&fechaHasta=2026-06-30
+```
+
+Los parámetros de consulta disponibles son:
+
+Parámetro      | Tipo   | Descripción
+---------------|--------|-------------
+`usuario_id`   | number | Filtra transacciones pertenecientes a un usuario específico
+`categoria_id` | number | Filtra transacciones de una categoría determinada
+`fechaDesde`   | date   | Fecha de inicio del rango (formato ISO 8601)
+`fechaHasta`   | date   | Fecha de fin del rango (formato ISO 8601)
+
+Todos los parámetros son opcionales y combinables entre sí.
+
+![GET Transaccion Filtrada](./img/get-transaccion-filtrar.png)
+
+#### POST /transaccion/crear
+
+Crea una nueva transacción en el sistema. Recibe por el cuerpo de la petición el monto, descripción, fecha, `usuario_id` y `categoria_id`.
+
+```http
+POST /api/transaccion/crear
+```
+
+**Cuerpo de la Petición (JSON Body):**
+
+```json
+{
+  "monto": 5000.00,
+  "descripcion": "Sueldo mensual",
+  "fecha": "2026-06-01",
+  "usuario_id": 1,
+  "categoria_id": 2
+}
+```
+
+**Respuesta Exitosa (201 Created):**
+
+```json
+{
+  "message": "Transaccion creada exitosamente",
+  "transaccion": {
+    "id": 5,
+    "monto": "5000.00",
+    "descripcion": "Sueldo mensual",
+    "fecha": "2026-06-01T00:00:00.000Z",
+    "usuario_id": 1,
+    "categoria_id": 2
+  }
+}
+```
+
+![POST Transaccion](./img/post-transaccion.png)
+
+#### PUT /transaccion/actualizar/:id
+
+Modifica una transacción existente identificada por su `:id` en la ruta. Acepta los campos `monto`, `descripcion`, `fecha` y `categoria_id` en el cuerpo de la petición, actualizando únicamente los que sean enviados.
+
+```http
+PUT /api/transaccion/actualizar/:id
+```
+
+**Cuerpo de la Petición (JSON Body):**
+
+```json
+{
+  "monto": 4500.00,
+  "descripcion": "Sueldo mensual corregido"
+}
+```
+
+**Respuesta Exitosa (200 OK):**
+
+```json
+{
+  "message": "Transaccion actualizada exitosamente",
+  "transaccion": {
+    "id": 5,
+    "monto": "4500.00",
+    "descripcion": "Sueldo mensual corregido",
+    "fecha": "2026-06-01T00:00:00.000Z",
+    "usuario_id": 1,
+    "categoria_id": 2
+  }
+}
+```
+
+![PUT Transaccion](./img/put-transaccion.png)
+
+
+#### DELETE /transaccion/:id
+
+Elimina de forma permanente una transacción identificada por su `:id` en la ruta. Verifica la existencia del registro antes de proceder.
+
+```http
+DELETE /api/transaccion/eliminar/:id
+```
+
+**Respuesta Exitosa (200 OK):**
+
+```json
+{
+  "message": "Transaccion eliminada correctamente"
+}
+```
+
+![DELETE Transaccion](./img/delete-transaccion.png)
 
 ---
 
