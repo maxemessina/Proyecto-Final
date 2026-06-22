@@ -102,7 +102,15 @@ Servicio     | Tecnologia          | Puerto | Funcion
 
 ## Endpoints Implementados
 
-// Completar
+### Endpoints de Usuarios:
+
+// completar
+
+### Endpoints de Transacciones:
+
+// completar
+
+---
 
 ## Explicación de Funciones
 
@@ -209,17 +217,12 @@ npx sequelize-cli db:seed:all
 * **`eliminarTransaccion`:** Endpoint destructivo accesible por DELETE para borrar transacciones específicas. Captura el ID desde la ruta y localiza el registro con findByPk(). Si la transacción no existe, retorna un error 404 como medida defensiva. Si es hallada con éxito, ejecuta el método destroy() proporcionado por el ORM para borrar permanentemente la fila correspondiente en la tabla de la base de datos. Culmina la petición retornando un mensaje JSON de confirmación exitosa.
 Explicación de Funciones de Transacciones
 
-#### Balance de Transacciones:
-
-eliminarTransaccion (Controller): Endpoint destructivo accesible por DELETE para borrar transacciones específicas. Captura el ID desde la ruta y localiza el registro con findByPk(). Si la transacción no existe, retorna un error 404 como medida defensiva. Si es hallada con éxito, ejecuta el método destroy() proporcionado por el ORM para borrar permanentemente la fila correspondiente en la tabla de la base de datos. Culmina la petición retornando un mensaje JSON de confirmación exitosa.
-
-
-## explicacion de de transacciones: Filtro de Transacciones ##
-**obtenerTransaccionesFiltradas (Controller):** Esta funcion sirve para no tener que traer todas las transacciones siempre que quieras consultar bajo algun criterio mas especifico. Se le pueden pasar filtros como por ejemplo, una categoria, unrango de fechas y te devuelve solo esas transacciones. Esta funcion se utiliza mediante parametros de consulta (`req.query`).
+* **`obtenerTransaccionesFiltradas`:** Esta funcion sirve para no tener que traer todas las transacciones siempre que quieras consultar bajo algun criterio mas especifico. Se le pueden pasar filtros como por ejemplo, una categoria, un rango de fechas y te devuelve solo esas transacciones. Esta funcion se utiliza mediante parametros de consulta (`req.query`).
 Primero extrae los parametros recibidos desde la URL y construye un objeto `where` que utiliza Sequelize para generar la consulta correspondiente. Para el filtrado por fechas utiliza el operador `Op.between`, que permite recuperar las transacciones comprendidas entre dos fechas determinadas.
 La consulta se realiza mediante `findAll()`, incorporando informacion relacionada de los modelos `Categoria` y `Usuario` mediante la propiedad `include`, evitando devolver solo identificadores numericos. Los resultados se ordenan por fecha de forma descendente y se envian al cliente en formato JSON.
 Toda la operacion se encuentra protegida por un `try/catch`, devolviendo un error 500 en caso de producirse algun fallo durante la consulta, como en el resto de funciones.
 
+#### Balance de Transacciones:
 
 El cálculo del balance se divide en tres etapas funcionales:
 
