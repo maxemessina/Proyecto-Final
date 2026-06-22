@@ -110,6 +110,7 @@ Servicio     | Tecnologia          | Puerto | Funcion
 
 // Agregar explicacion
 
+---
 
 ### FUNCIONES UTILIZADAS EN CATEGORIAS
 En esta parte del proyecto realicé el módulo de categorías, que sirve para clasificar las transacciones según si corresponden a un ingreso o un egreso.
@@ -120,10 +121,25 @@ Cada categoría tiene:
 * `tipo` (`ingreso` o `egreso`)
 * `created_at`
 
-## categoriaController:
-Se encarga de crear y obtener categorías. Antes de crear una, verifica que no exista otra con el mismo nombre. Si la categoría no existe, se guarda en la base de datos y devuelve una respuesta al cliente.
+## Categorías (categoriaController)
+`crearCategoria`: Permite crear nuevas categorías. Recibe `nombre` y `tipo` desde `req.body`, valida que no exista una categoría con el mismo nombre y, si todo es correcto, la guarda en la base de datos utilizando `create()`, devolviendo la categoría creada con estado 201 o un error 500 en caso de fallo.
 
-## Crear categoría
+`obtenerCategorias`: Obtiene todas las categorías registradas utilizando `findAll()` del modelo. Devuelve un array en formato JSON o un error 500 si ocurre un problema en la consulta.
+
+## Categoría (categoriaModel)
+Define la estructura de la tabla categorias en la base de datos.
+
+* id: identificador único autoincremental.
+* nombre: nombre de la categoría (obligatorio y no vacío).
+* tipo: define si la categoría es `ingreso` o `egreso`.
+
+El modelo utiliza timestamps automáticos, registrando únicamente `created_at`.
+
+## Categorías (categoriaRoutes)
+Define los endpoints disponibles para el recurso categorías:
+
+POST `/categorias`
+Llama al controller `crearCategoria` para crear una nueva categoría.
 
 **Endpoint:**
 
@@ -151,7 +167,8 @@ POST /api/categoria/crear
 }
 ```
 
-## Obtener categorías
+GET `/categorias`
+Llama al controller `obtenerCategorias` para listar todas las categorías.
 
 **Endpoint:**
 
@@ -161,17 +178,15 @@ GET /api/categoria/obtener
 
 Este endpoint devuelve todas las categorías almacenadas en la base de datos.
 
-## Seeder de Categorías
+## Categorías iniciales (categoriaSeeder)
 Se creó para cargar algunas categorías de ejemplo y no tener que agregarlas manualmente cada vez que se inicia el proyecto.
+Este proceso inserta categorías predeterminadas utilizando el método `bulkInsert()` de Sequelize.
 
-Las categorías cargadas son:
-* Sueldo
-* Comida
-* Transporte
-* Actividades
-* Ropa
+Se crean categorías básicas del sistema, por ejemplo:
+* Categorías de tipo `ingreso`.
+* Categorías de tipo `egreso`.
 
-Para ejecutar el seeder:
+Para ejecutar el seeder utilizamos:
 ```bash
 npx sequelize-cli db:seed:all
 ```
@@ -180,6 +195,8 @@ npx sequelize-cli db:seed:all
 ![GET Categorías](backend/images/get-categorias.png)
 
 ![POST Categorías](backend/images/post-categorias.png)
+
+---
 
 ### Transacciones (transacionController):
 
