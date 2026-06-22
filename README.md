@@ -111,7 +111,7 @@ Servicio     | Tecnologia          | Puerto | Funcion
 // Agregar explicacion
 
 
-### FUNCIONES DE CATEGORIAS
+### FUNCIONES UTILIZADAS EN CATEGORIAS
 En esta parte del proyecto realicé el módulo de categorías, que sirve para clasificar las transacciones según si corresponden a un ingreso o un egreso.
 
 Cada categoría tiene:
@@ -192,18 +192,10 @@ npx sequelize-cli db:seed:all
 * **`eliminarTransaccion`:** Endpoint destructivo accesible por DELETE para borrar transacciones específicas. Captura el ID desde la ruta y localiza el registro con findByPk(). Si la transacción no existe, retorna un error 404 como medida defensiva. Si es hallada con éxito, ejecuta el método destroy() proporcionado por el ORM para borrar permanentemente la fila correspondiente en la tabla de la base de datos. Culmina la petición retornando un mensaje JSON de confirmación exitosa.
 Explicación de Funciones de Transacciones
 
-* **`crearTransaccion`:** Intercepta peticiones POST para registrar nuevas operaciones. Extrae el monto, descripción, fecha, usuario_id y categoria_id enviados en el cuerpo de la petición (req.body). Utiliza el método create() del ORM Sequelize para guardar el nuevo registro en la base de datos PostgreSQL. Si la operación es exitosa, devuelve un estado 201 (Created) junto con un mensaje de éxito y el objeto de la transacción. Todo el bloque está protegido por un try/catch que devuelve un error 500 si falla la inserción.
-
-* **`obtenerTransacciones`:** Función asíncrona encargada de leer el historial completo mediante una petición GET. Utiliza el método findAll() del modelo Transaccion. Para evitar devolver solo identificadores numéricos, implementa la propiedad include para hacer un cruce relacional (JOIN) con los modelos Categoria y Usuario, extrayendo atributos legibles y específicos como el nombre, email y tipo. Además, ordena los resultados de forma descendente (los más recientes primero) basándose en la fecha asignada y la fecha de creación del registro. Responde con los datos en formato JSON o un error 500 en caso de fallo.
-
-* **`actualizarTransaccion`:** Permite la edición de un registro existente mediante el método PUT. Primero, extrae el identificador dinámico de la ruta a través de req.params.id y busca la coincidencia en la base de datos usando findByPk(). Si el ID no existe, frena la ejecución y devuelve de forma temprana un error 404 (No encontrada). Si lo encuentra, evalúa uno a uno qué campos fueron enviados en el cuerpo de la petición (evaluando si son diferentes de undefined) para reemplazar únicamente los datos modificados y conservar el resto intacto. Finalmente, ejecuta el método update() de Sequelize y devuelve la transacción actualizada.
-
-* **`eliminarTransaccion`:** Endpoint destructivo accesible por DELETE para borrar transacciones específicas. Captura el ID desde la ruta y localiza el registro con findByPk(). Si la transacción no existe, retorna un error 404 como medida defensiva. Si es hallada con éxito, ejecuta el método destroy() proporcionado por el ORM para borrar permanentemente la fila correspondiente en la tabla de la base de datos. Culmina la petición retornando un mensaje JSON de confirmación exitosa.
-
-
 #### Balance de Transacciones:
 
 eliminarTransaccion (Controller): Endpoint destructivo accesible por DELETE para borrar transacciones específicas. Captura el ID desde la ruta y localiza el registro con findByPk(). Si la transacción no existe, retorna un error 404 como medida defensiva. Si es hallada con éxito, ejecuta el método destroy() proporcionado por el ORM para borrar permanentemente la fila correspondiente en la tabla de la base de datos. Culmina la petición retornando un mensaje JSON de confirmación exitosa.
+
 
 ## explicacion de de transacciones: Filtro de Transacciones ##
 **obtenerTransaccionesFiltradas (Controller):** Esta funcion sirve para no tener que traer todas las transacciones siempre que quieras consultar bajo algun criterio mas especifico. Se le pueden pasar filtros como por ejemplo, una categoria, unrango de fechas y te devuelve solo esas transacciones. Esta funcion se utiliza mediante parametros de consulta (`req.query`).
