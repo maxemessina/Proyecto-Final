@@ -2,7 +2,8 @@ const express = require("express");
 const router = express.Router();
 const {
   crearTransaccion,
-  obtenerTransacciones,
+  obtenerTransacciones,  
+  obtenerTransaccionesFiltradas,
   actualizarTransaccion,
   eliminarTransaccion,
 } = require("../controllers/transaccionController");
@@ -12,6 +13,9 @@ const { verificarToken } = require('../middleware/auth');
 
 router.post("/crear", crearTransaccion);
 
+router.get("/filtrar", obtenerTransaccionesFiltradas);gi
+
+router.get("/", obtenerTransacciones);
 router.get("/obtener", obtenerTransacciones);
 
 router.put("/actualizar/:id", actualizarTransaccion);
