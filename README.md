@@ -392,7 +392,7 @@ DELETE /api/transaccion/eliminar/:id
 
 * **`login`:** Controlador diseñado para validar el acceso de los usuarios a la API. Utiliza el método `findOne({ where: { email } })` para localizar al usuario correspondiente. Si la búsqueda arroja un resultado nulo, o si al llamar al método de validación de contraseñas de la instancia (`validarPassword()`) se detecta una discrepancia en las credenciales criptográficas, el controlador interrumpe el ciclo devolviendo inmediatamente un estado HTTP `401 Unauthorized` por motivos de seguridad. Si los datos son correctos, expide una respuesta con estado `200 OK` adjuntando los datos esenciales del usuario para el manejo del estado en la aplicación.
 
-* **`perfil`:** // Completar
+* **`perfil`:** Controlador encargado de exponer el perfil detallado de un usuario específico. Obtiene el identificador desde los parámetros de ruta (`req.params.id`) y ejecuta `findByPk()` con un `include` anidado en dos niveles: primero trae todas las `Transacciones` asociadas al usuario (filtrando los atributos de id, monto, descripción y fecha) y, dentro de cada una, incorpora la `Categoria` correspondiente (nombre y tipo). Si no existe ningún usuario con ese identificador, interrumpe el flujo devolviendo un estado HTTP `404 Not Found`. En caso contrario, responde con estado `200 OK` adjuntando el objeto completo del usuario junto a su historial de transacciones enriquecido con los datos de categoría.
 
 ### Categoria (categoriaController):
 
