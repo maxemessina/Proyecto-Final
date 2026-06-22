@@ -1,12 +1,50 @@
-# Sistema Web Full-Stack con Docker
+# Sistema de Control de Gastos Personales
 
-Proyecto base para el trabajo final de Programacion 3. Es una aplicacion web completa con frontend, backend, base de datos y servicios auxiliares, todo orquestado con Docker Compose.
+## Descripción del Proyecto
 
-**Tu trabajo consiste en completar las partes marcadas con `// TODO` en el backend** (autenticacion JWT) y desarrollar las funcionalidades adicionales que se indiquen.
+Esta aplicación es una plataforma para registrar, categorizar y analizar ingresos y gastos personales. Actualmente, el proyecto corresponde a la entrega del **Parcial 2** de **Programacion III** , enfocado en el desarrollo de un Backend bajo la arquitectura **MVC** utilizando Node.js, Express y **Sequelize** (PostgreSQL) para la persistencia de datos reales, todo orquestado con Docker Compose.
+
+**Futura Update (Proyecto Final):** Esta API está preparada e intencionalmente desacoplada para ser consumida en la próxima etapa por un Frontend desarrollado en **React** e implementar **JWT**.
 
 ---
 
+## Grupo N°16 - Integrantes
+
+* **Priscila Arrimada:** POST y GET de categoria + seeders.
+* **Tomás Astudillo:** POST transaccion y relaciones entre tablas.
+* **Valentina Guerrieri:** GET transaccion con filtros.
+* **Máximo Messina:** POST, GET usuario y GET usuario por ID + migraciones.
+* **Máximo Moraes:** GET transaccion por ID, PUT y DELETE.
+* **Lucas Rojas:** GET de calculo de transacciones (balance).
+
+---
+
+## Tecnologias aplicadas
+
+* **Backend:** Node.js, Express, TypeScript / JavaScript.
+* **Base de Datos:** PostgreSQL.
+* **ORM:** Sequelize.
+* **Infraestructura:** Docker & Docker Compose (Base de datos, Caddy, pgAdmin).
+* **Control de Versiones:** Git & GitHub.
+
+## Metodología de Trabajo con Git y GitHub
+
+El equipo implementó un flujo de trabajo estructurado basado en ramas:
+
+1. **Ramas Principales**
+
+- **`main`:** Rama exclusiva para versiones estables y aptas para entrega final
+- **`dev`:** Rama de integración central para pruebas previas al redespliegue
+
+2. **Ramas Personales**
+   Cada integrante desarrolló sus asignaciones en una rama personal aislada, utilizando nomenclatura estándar: `alumno-apellido`.
+
+3. **Flujo de Integración**
+   Todo código nuevo o modificado requirió de la generación de _commits_ atómicos y descriptivos. Para unificar los cambios, cada desarrollador abrió un **Pull Request** hacia las ramas de integración (`dev`/`main`), permitiendo la revisión del código por parte del equipo y garantizando una resolución prolija de conflictos antes de ejecutar la mezcla definitiva (_merge_).
+
 ## Arquitectura General
+
+[Ver Modelo Relacional.](./modelo_relacional.md)
 
 ```
 ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
@@ -22,820 +60,370 @@ Proyecto base para el trabajo final de Programacion 3. Es una aplicacion web com
                    └─────────────┘    └─────────────┘
 ```
 
-Todos los servicios corren dentro de contenedores Docker y se comunican a traves de una red interna (`app_network`). Caddy actua como reverse proxy: recibe todo el trafico en el puerto 80 y lo redirige al frontend o al backend segun la URL.
+Todos los servicios corren dentro de contenedores Docker y se comunican a traves de una red interna. Caddy actua como reverse proxy: recibe todo el trafico en el puerto 80 y lo redirige al frontend o al backend segun la URL.
 
-| Servicio | Tecnologia | Puerto | Funcion |
-|----------|------------|--------|---------|
-| **Frontend** | React 18 | 3000 | Interfaz de usuario |
-| **Backend** | Express + Sequelize | 3001 | API REST |
-| **Database** | PostgreSQL 15 | 5432 | Base de datos relacional |
-| **Cache** | Redis 7 | 6379 | Cache y sesiones |
-| **Proxy** | Caddy 2 | 80 | Reverse proxy |
-| **pgAdmin** | pgAdmin 4 | 5050 | Administracion visual de la BD |
+Servicio     | Tecnologia          | Puerto | Funcion
+-------------|---------------------|--------|---------
+**Frontend** | React 18            | 3000   | Interfaz de usuario
+**Backend**  | Express + Sequelize | 3001   | API REST
+**Database** | PostgreSQL 15       | 5432   | Base de datos relacional
+**Cache**    | Redis 7             | 6379   | Cache y sesiones
+**Proxy**    | Caddy 2             | 80     | Reverse proxy
+**pgAdmin**  | pgAdmin 4           | 5050   | Administracion visual de la BD
 
----
-
-## Inicio Rapido
-
-### Requisitos previos
-
-- [Docker](https://docs.docker.com/get-docker/) y [Docker Compose](https://docs.docker.com/compose/install/) instalados.
-
-### Levantar el proyecto
-
-```bash
-# Construir las imagenes (solo la primera vez o cuando cambien dependencias)
-docker-compose build
-
-# Iniciar todos los servicios
-docker-compose up
-```
-
-Una vez que todo este corriendo, podes acceder a:
-
-| Recurso | URL |
-|---------|-----|
-| Frontend (React) | http://localhost:3000 |
-| Backend API | http://localhost:3001/api |
-| Health check | http://localhost:3001/health |
-| Proxy (Caddy) | http://localhost |
-| pgAdmin | http://localhost:5050 |
-
-> **Tip:** Si queres correrlo en segundo plano, usa `docker-compose up -d`. Para ver los logs: `docker-compose logs -f`.
-
-### Detener el proyecto
-
-```bash
-# Detener los servicios (mantiene los datos)
-docker-compose down
-
-# Detener y borrar todos los datos (base de datos, cache, etc.)
-docker-compose down -v
-```
+[Para iniciar el proyecto, podes seguir esta guia.](./iniciar_proyecto.md)
 
 ---
 
 ## Estructura del Proyecto
 
-```
-proyecto/
-├── docker-compose.yml              # Orquestacion de todos los servicios
-├── .gitignore
-├── README.md
-│
-├── backend/
-│   ├── Dockerfile.dev               # Imagen Docker para desarrollo
-│   ├── package.json
-│   ├── server.js                    # Punto de entrada del servidor Express
-│   ├── config/
-│   │   ├── config.js                # Config de Sequelize CLI (migraciones)
-│   │   └── database.js              # Config de conexion a PostgreSQL
-│   ├── models/
-│   │   ├── index.js                 # Inicializa Sequelize y registra modelos
-│   │   └── User.js                  # Modelo de usuario (tiene TODOs)
-│   ├── controllers/
-│   │   └── authController.js        # Logica de registro, login y perfil (tiene TODOs)
-│   ├── middleware/
-│   │   └── auth.js                  # Generacion y verificacion de JWT (tiene TODOs)
-│   ├── routes/
-│   │   ├── index.js                 # Router principal, monta /api/auth
-│   │   └── auth.js                  # Rutas de autenticacion
-│   ├── migrations/                  # Migraciones de base de datos
-│   ├── seeders/                     # Datos de prueba
-│   ├── tests/                       # Tests
-│   └── utils/                       # Funciones auxiliares
-│
-├── frontend/
-│   ├── Dockerfile.dev
-│   ├── package.json
-│   ├── public/
-│   │   └── index.html
-│   └── src/
-│       ├── index.js                 # Punto de entrada de React
-│       ├── App.js                   # Componente principal
-│       ├── components/              # Componentes reutilizables
-│       │   ├── common/
-│       │   ├── layout/
-│       │   └── ui/
-│       ├── pages/                   # Paginas de la aplicacion
-│       ├── services/                # Llamadas a la API (axios)
-│       ├── hooks/                   # Custom hooks de React
-│       ├── utils/                   # Funciones auxiliares
-│       ├── styles/                  # Estilos globales
-│       └── assets/                  # Imagenes, iconos, etc.
-│
-├── database/
-│   └── init.sql                     # Script que se ejecuta al crear la BD
-│
-├── caddy/
-│   └── Caddyfile                    # Configuracion del reverse proxy
-│
-└── pgadmin/
-    ├── Dockerfile
-    ├── servers.json                 # Conexion preconfigurada al PostgreSQL
-    └── pgpass                       # Credenciales de la BD
-```
+```text
+📦 Proyecto-Final
+ ┣ 📂 backend/                 # Lógica del Servidor y API REST
+ ┃ ┣ 📂 config/                # Configuraciones (Ej: Conexión de Sequelize a la BD)
+ ┃ ┣ 📂 controllers/           # Controladores (Lógica de negocio: Usuarios, Categorías, Transacciones)
+ ┃ ┣ 📂 middleware/            # Interceptores (Ej: Autenticación, Validaciones)
+ ┃ ┣ 📂 migrations/            # Migraciones de base de datos
+ ┃ ┣ 📂 models/                # Modelos de Sequelize (Definición de tablas e index de relaciones)
+ ┃ ┣ 📂 routes/                # Rutas de la API (Endpoints GET, POST, PUT, DELETE)
+ ┃ ┣ 📂 seeders/               # Datos de prueba
+ ┃ ┣ Dockerfile                # Imagen docker
+ ┃ ┣ package.json              # Dependencias del Backend
+ ┃ ┣ server.js                 # Clase principal del servidor Express
+ ┃ ┗ tsconfig.json             # Config de ts
+ ┣ 📂 caddy/                   # Configuración del proxy reverso (Caddyfile)
+ ┣ 📂 database/                # Scripts SQL de inicialización (init.sql)
+ ┣ 📂 frontend/                # (En desarrollo para el Proyecto Final) Aplicación React
+ ┣ 📂 img/                     # Imagenes para documentacion
+ ┣ 📂 pgadmin/                 # Configuración de interfaz gráfica para la BD
+ ┣ docker-compose.yml          # Orquestador de contenedores (App, DB, pgAdmin, Caddy)
+ ┣ iniciar_proyecto.md         # Guia para iniciar proyecto
+ ┣ modelo_relacional.md        # Modelo relacional del proyecto
+ ┗ README.md                   # Documentación del proyecto
+ ```
 
 ---
 
-## Que Hay Que Completar: Autenticacion JWT
+## Endpoints Implementados
 
-El sistema de autenticacion esta parcialmente implementado. Hay **8 TODOs** distribuidos en 3 archivos que deben ser completados para que funcione.
+### Endpoints de Categorias:
 
-### Como funciona JWT (teoria)
+#### Crear categoría
 
-1. El usuario se **registra** enviando nombre, email y password.
-2. El servidor **hashea** la password (nunca se guarda en texto plano) y crea el usuario en la BD.
-3. El servidor genera un **token JWT** (un string firmado que contiene el id y email del usuario) y se lo devuelve.
-4. Para las siguientes peticiones, el cliente envia el token en el header `Authorization: Bearer <token>`.
-5. El servidor **verifica** que el token sea valido y no haya expirado antes de dar acceso.
+Permite crear una nueva categoría.
 
-### Endpoints de la API
-
-| Metodo | Ruta | Protegida | Descripcion |
-|--------|------|-----------|-------------|
-| `POST` | `/api/auth/register` | No | Registrar un nuevo usuario |
-| `POST` | `/api/auth/login` | No | Iniciar sesion |
-| `GET` | `/api/auth/perfil` | Si | Obtener datos del usuario logueado |
-
-#### Ejemplo: Registro
-
-```bash
-curl -X POST http://localhost:3001/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"nombre": "Juan", "email": "juan@test.com", "password": "123456"}'
+```http
+POST /api/categoria/crear
 ```
 
-Respuesta esperada (una vez completados los TODOs):
+**Ejemplo:**
 ```json
 {
-  "message": "Usuario registrado exitosamente",
-  "user": { "id": 1, "nombre": "Juan", "email": "juan@test.com" },
-  "token": "eyJhbGciOiJIUzI1NiIs..."
+  "nombre": "Salud",
+  "tipo": "egreso"
+}
+```
+Antes de crearla se verifica que no exista otra categoría con el mismo nombre.
+
+![POST Categorías](./img/post-categorias.png)
+
+### Obtener categorías
+
+```http
+GET /api/categoria/obtener
+```
+Devuelve todas las categorías guardadas en la base de datos.
+
+![GET Categorías](./img/get-categorias.png)
+
+### Endpoints de Usuarios:
+
+#### POST Registrar Usuario
+
+Da de alta a un usuario en la plataforma. El modelo ejecuta validaciones nativas de Sequelize en segundo plano para asegurar que el email tenga un formato legítimo (`isEmail`) y que no se encuentre duplicado en PostgreSQL (`unique: true`).
+
+```http
+POST api/usuario/register
+```
+
+**Ejemplo:**
+
+```json
+{
+   "nombre": "Juan Pérez",
+   "email": "juan.perez@email.com",
+   "password": "PasswordSegura123"
+}
+```
+**Respuesta Exitosa (201 Created):**
+
+```json
+{
+   "id": 1,
+   "nombre": "Juan Pérez",
+   "email": "juan.perez@email.com",
+   "createdAt": "2026-06-21T21:40:00.000Z"
 }
 ```
 
-#### Ejemplo: Login
+![POST Register](./img/post-register.png)
 
-```bash
-curl -X POST http://localhost:3001/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email": "juan@test.com", "password": "123456"}'
+#### POST Login Usuario
+
+Autentica las credenciales de un usuario. Compara de forma segura el hash de la contraseña almacenada en la base de datos contra el string ingresado por el cliente.
+
+```http
+POST api/usuario/login
 ```
 
-#### Ejemplo: Acceder al perfil (ruta protegida)
-
-```bash
-curl http://localhost:3001/api/auth/perfil \
-  -H "Authorization: Bearer <token_obtenido_en_login>"
-```
-
-### Archivos con TODOs
-
-A continuacion se detalla cada TODO. **No cambies la estructura de los archivos**, solo completa las partes indicadas.
-
----
-
-### 1. `backend/models/User.js` — Modelo de usuario
-
-Este archivo define la tabla `users` en la base de datos usando Sequelize.
-
-**TODO 1 — Hook `beforeCreate`:** Antes de guardar un usuario nuevo, hay que hashear la password para no almacenarla en texto plano.
-
-```javascript
-// Pista: bcrypt.hash(user.password, 10) devuelve una promesa con el hash.
-// Hay que asignar el resultado a user.password.
-```
-
-**TODO 2 — Metodo `validarPassword`:** Este metodo compara una password en texto plano con el hash almacenado. Se usa en el login.
-
-```javascript
-// Pista: bcrypt.compare(password, this.password) devuelve true o false.
-```
-
----
-
-### 2. `backend/middleware/auth.js` — Generacion y verificacion de tokens
-
-Este archivo exporta dos funciones: una para crear tokens y otra para verificar que un request tenga un token valido.
-
-**TODO 3 — `generarToken`:** Crear un JWT firmado con los datos del usuario.
-
-```javascript
-// Pista: jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '24h' })
-```
-
-**TODO 4 — Extraer el token del header:** El header `Authorization` tiene el formato `"Bearer eyJhbG..."`. Hay que extraer solo la parte del token.
-
-```javascript
-// Pista: authHeader.split(' ') devuelve un array ["Bearer", "eyJhbG..."].
-// El token esta en la posicion [1].
-```
-
-**TODO 5 — `verificarToken`:** Decodificar el token y, si es valido, guardar los datos del usuario en `req.user` para que los controladores puedan usarlos.
-
-```javascript
-// Pista: jwt.verify(token, JWT_SECRET) devuelve el payload decodificado.
-// Guardar el resultado en req.user y llamar a next().
-```
-
----
-
-### 3. `backend/controllers/authController.js` — Logica de registro, login y perfil
-
-Este archivo tiene la logica de negocio de cada endpoint.
-
-**TODO 6 — `register`:** Crear el usuario en la base de datos.
-
-```javascript
-// Pista: await User.create({ nombre, email, password })
-// El hook beforeCreate se encarga de hashear la password automaticamente.
-```
-
-**TODO 7 — `login`:** Buscar al usuario por email y validar su password.
-
-```javascript
-// Pista para buscar: await User.findOne({ where: { email } })
-// Pista para validar: await user.validarPassword(password)
-```
-
-**TODO 8 — `perfil`:** Obtener el usuario desde la BD usando el id que el middleware puso en `req.user`.
-
-```javascript
-// Pista: await User.findByPk(req.user.id)
-```
-
----
-
-### Como verificar que funciona
-
-Una vez completados los 8 TODOs:
-
-```bash
-# 1. Levantar los servicios
-docker-compose up
-
-# 2. Registrar un usuario
-curl -X POST http://localhost:3001/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"nombre": "Test", "email": "test@test.com", "password": "123456"}'
-
-# 3. Hacer login (copiar el token de la respuesta)
-curl -X POST http://localhost:3001/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email": "test@test.com", "password": "123456"}'
-
-# 4. Acceder al perfil con el token
-curl http://localhost:3001/api/auth/perfil \
-  -H "Authorization: Bearer PEGAR_TOKEN_AQUI"
-```
-
-Si el paso 4 devuelve los datos del usuario, la autenticacion esta funcionando correctamente.
-
----
-
-## Desarrollo con Hot Reload
-
-Cuando los servicios estan corriendo, los cambios en el codigo se aplican automaticamente:
-
-- **Frontend (React):** Cualquier cambio en `frontend/src/` se refleja al instante en el navegador gracias a Fast Refresh.
-- **Backend (Express):** Cualquier cambio en `backend/` reinicia automaticamente el servidor gracias a nodemon.
-- **Base de datos:** Los datos persisten entre reinicios gracias a los volumenes de Docker. Solo se pierden si ejecutas `docker-compose down -v`.
-
-### Flujo de trabajo
-
-1. Edita los archivos en tu editor (VS Code, etc.)
-2. Los cambios se detectan automaticamente dentro del contenedor
-3. El servicio correspondiente se recarga
-4. Verifica en el navegador o con `curl`
-
----
-
-## Base de Datos
-
-### Acceso con pgAdmin (interfaz web)
-
-pgAdmin ya viene preconfigurado para conectarse a la base de datos. Solo hay que entrar a:
-
-- **URL:** http://localhost:5050
-- **Email:** `admin@example.com`
-- **Password:** `admin123`
-
-La conexion al servidor PostgreSQL ya esta configurada automaticamente.
-
-### Acceso por terminal
-
-```bash
-# Abrir una consola SQL directa
-docker-compose exec database psql -U app_user -d app_database
-```
-
-### Credenciales de la BD
-
-| Campo | Valor |
-|-------|-------|
-| Host (desde otro contenedor) | `database` |
-| Host (desde tu maquina) | `localhost` |
-| Puerto | `5432` |
-| Base de datos | `app_database` |
-| Usuario | `app_user` |
-| Password | `app_password` |
-
-### Migraciones y Seeders con Sequelize
-
-Las migraciones permiten versionar cambios en la estructura de la BD. Los seeders insertan datos de prueba.
-
-```bash
-# Entrar al contenedor del backend
-docker-compose exec backend sh
-
-# Crear una nueva migracion
-npx sequelize-cli migration:generate --name create-users
-
-# Ejecutar migraciones pendientes
-npx sequelize-cli db:migrate
-
-# Deshacer la ultima migracion
-npx sequelize-cli db:migrate:undo
-
-# Ver estado de migraciones
-npx sequelize-cli db:migrate:status
-
-# Crear un seeder
-npx sequelize-cli seed:generate --name demo-users
-
-# Ejecutar todos los seeders
-npx sequelize-cli db:seed:all
-
-# Salir del contenedor
-exit
-```
-
-### Backup y restauracion
-
-```bash
-# Exportar la base de datos
-docker-compose exec database pg_dump -U app_user app_database > backup.sql
-
-# Importar un backup
-docker-compose exec -T database psql -U app_user -d app_database < backup.sql
-```
-
----
-
-## Variables de Entorno
-
-Las variables de entorno del backend estan definidas directamente en `docker-compose.yml`, dentro del servicio `backend`. Las mas importantes son:
-
-| Variable | Valor | Descripcion |
-|----------|-------|-------------|
-| `NODE_ENV` | `development` | Entorno de ejecucion |
-| `PORT` | `3001` | Puerto del servidor Express |
-| `DB_HOST` | `database` | Nombre del servicio de PostgreSQL en Docker |
-| `DB_PORT` | `5432` | Puerto de PostgreSQL |
-| `DB_NAME` | `app_database` | Nombre de la base de datos |
-| `DB_USER` | `app_user` | Usuario de la BD |
-| `DB_PASSWORD` | `app_password` | Password de la BD |
-| `JWT_SECRET` | `your_jwt_secret_here` | Clave secreta para firmar los tokens JWT |
-| `CORS_ORIGIN` | `http://localhost:3000` | Origen permitido para peticiones del frontend |
-
-> **Nota:** En un entorno de produccion, estas variables **nunca** deben estar en el codigo ni en el repositorio. Se usan archivos `.env` o secrets de Docker.
-
----
-
-## Comandos Utiles
-
-### Docker Compose
-
-```bash
-# Ver el estado de los contenedores
-docker-compose ps
-
-# Ver logs de un servicio en particular
-docker-compose logs -f backend
-docker-compose logs -f frontend
-docker-compose logs -f database
-
-# Reiniciar un servicio sin detener los demas
-docker-compose restart backend
-
-# Reconstruir un servicio (cuando cambias package.json o el Dockerfile)
-docker-compose up --build backend
-
-# Entrar al shell de un contenedor
-docker-compose exec backend sh
-docker-compose exec frontend sh
-
-# Ver las variables de entorno dentro de un contenedor
-docker-compose exec backend env
-```
-
-### Limpieza
-
-```bash
-# Detener servicios y borrar datos
-docker-compose down -v
-
-# Reconstruir todo desde cero (cuando nada funciona)
-docker-compose down -v --rmi all
-docker-compose build --no-cache
-docker-compose up
-
-# Liberar espacio de Docker en el sistema
-docker system prune -a
-```
-
----
-
-## Problemas Comunes
-
-### El backend no conecta a la base de datos
-
-La base de datos tarda unos segundos en iniciar. El `docker-compose.yml` tiene un `healthcheck` para que el backend espere, pero a veces no alcanza.
-
-```bash
-# Verificar que la BD este corriendo
-docker-compose ps database
-
-# Ver los logs de PostgreSQL
-docker-compose logs database
-
-# Solucion nuclear: reiniciar con volumenes limpios
-docker-compose down -v
-docker-compose up --build
-```
-
-### Un puerto ya esta en uso
-
-Si otro programa ya esta usando el puerto 3000, 3001 u 80:
-
-```bash
-# Ver que proceso usa el puerto
-lsof -i :3000
-# o en Linux
-netstat -tlnp | grep :3000
-```
-
-Podes cambiar el puerto externo en `docker-compose.yml`. Por ejemplo, para mover el frontend al puerto 3002:
-
-```yaml
-ports:
-  - "3002:3000"  # externo:interno
-```
-
-### Hot reload no funciona
-
-Verificar que estas variables esten en `docker-compose.yml` dentro del servicio `frontend`:
-
-```yaml
-environment:
-  - CHOKIDAR_USEPOLLING=true
-  - WATCHPACK_POLLING=true
-```
-
-Si sigue sin funcionar, reiniciar el servicio: `docker-compose restart frontend`.
-
-### Error de permisos en Docker
-
-```bash
-sudo chown -R $USER:$USER .
-chmod -R 755 .
-```
-
-### Error de credenciales de Docker Desktop (Windows/WSL)
-
-```
-error getting credentials - err: exec: "docker-credential-desktop.exe"
-```
-
-```bash
-# Hacer backup de la config de Docker
-cp ~/.docker/config.json ~/.docker/config.json.backup
-
-# Resetear la config
-echo '{}' > ~/.docker/config.json
-
-# Intentar de nuevo
-docker-compose build
-```
-
----
-
-## Tecnologias Utilizadas
-
-### Backend
-- **[Express](https://expressjs.com/)** — Framework web para Node.js
-- **[Sequelize](https://sequelize.org/)** — ORM para bases de datos SQL
-- **[jsonwebtoken](https://github.com/auth0/node-jsonwebtoken)** — Generacion y verificacion de JWT
-- **[bcryptjs](https://github.com/dcodeIO/bcrypt.js)** — Hashing de passwords
-- **[helmet](https://helmetjs.github.io/)** — Headers de seguridad HTTP
-- **[cors](https://github.com/expressjs/cors)** — Configuracion de Cross-Origin Resource Sharing
-- **[morgan](https://github.com/expressjs/morgan)** — Logging de peticiones HTTP
-
-### Frontend
-- **[React 18](https://react.dev/)** — Biblioteca para interfaces de usuario
-- **[React Router](https://reactrouter.com/)** — Navegacion SPA
-- **[Axios](https://axios-http.com/)** — Cliente HTTP
-- **[React Query](https://tanstack.com/query)** — Manejo de estado del servidor
-- **[React Hook Form](https://react-hook-form.com/)** — Manejo de formularios
-- **[Tailwind CSS](https://tailwindcss.com/)** — Framework de estilos utilitario
-
-### Infraestructura
-- **[Docker](https://docs.docker.com/)** — Contenedores
-- **[Docker Compose](https://docs.docker.com/compose/)** — Orquestacion multi-contenedor
-- **[PostgreSQL 15](https://www.postgresql.org/docs/15/)** — Base de datos relacional
-- **[Redis 7](https://redis.io/docs/)** — Cache en memoria
-- **[Caddy 2](https://caddyserver.com/docs/)** — Reverse proxy
-- **[pgAdmin 4](https://www.pgadmin.org/docs/)** — Administracion visual de PostgreSQL
-
----
----
-
-# Secciones Opcionales / Avanzadas
-
-Las siguientes secciones cubren temas que van mas alla del desarrollo local. No son necesarias para completar el trabajo, pero son utiles si queres exponer tu proyecto a internet o desplegarlo en un servidor real.
-
----
-
-## Opcional: Configurar Caddy para Produccion con HTTPS
-
-### Que es Caddy y por que lo usamos
-
-Caddy es un servidor web moderno que funciona como **reverse proxy** (intermediario entre el usuario y tus servicios). En este proyecto, Caddy recibe todas las peticiones en el puerto 80 y decide a donde mandarlas:
-
-- Si la URL empieza con `/api` o `/health` → la envia al **backend** (Express, puerto 3001)
-- Cualquier otra URL → la envia al **frontend** (React, puerto 3000)
-
-```
-Usuario → Caddy (:80) → /api/*    → Backend (:3001)
-                       → /*        → Frontend (:3000)
-```
-
-La ventaja principal de Caddy sobre otros servidores como Nginx o Apache es que **configura HTTPS automaticamente**. Cuando le das un nombre de dominio, Caddy se encarga solo de:
-
-1. Pedir un certificado SSL gratuito a Let's Encrypt
-2. Instalarlo
-3. Renovarlo automaticamente cada ~60 dias
-4. Redirigir HTTP → HTTPS
-
-Con Nginx, todo eso hay que configurarlo manualmente.
-
-### Que se necesita para HTTPS
-
-Para que Caddy active HTTPS automatico necesitas **dos cosas**:
-
-1. **Un nombre de dominio** que apunte a la IP de tu servidor (por ejemplo `miproyecto.com` o `miproyecto.duckdns.org`)
-2. **Que los puertos 80 y 443 esten abiertos** y accesibles desde internet
-
-> **Nota:** HTTPS no funciona con `localhost` ni con direcciones IP directas. Se necesita un dominio.
-
-### Configurar Caddy con un dominio
-
-Si tenes un dominio apuntando a tu servidor, la configuracion es asi de simple. Editar `caddy/Caddyfile`:
-
-```
-miproyecto.com {
-    handle /api/* {
-        reverse_proxy backend:3001
-    }
-
-    handle /health {
-        reverse_proxy backend:3001
-    }
-
-    handle {
-        reverse_proxy frontend:3000
-    }
+**Cuerpo de la Petición (JSON Body):**
+
+```json
+{
+   "email": "juan.perez@email.com",
+   "password": "PasswordSegura123"
 }
 ```
 
-El unico cambio respecto a la configuracion de desarrollo es reemplazar `:80` por el nombre de dominio. Caddy hace todo lo demas automaticamente.
+**Respuesta Exitosa (200 OK):**
 
-Tambien hay que actualizar el servicio en `docker-compose.yml` para exponer el puerto 443 (HTTPS) y darle un volumen para guardar los certificados:
-
-```yaml
-caddy:
-  image: caddy:2-alpine
-  container_name: app_caddy
-  restart: unless-stopped
-  ports:
-    - "80:80"
-    - "443:443"
-  volumes:
-    - ./caddy/Caddyfile:/etc/caddy/Caddyfile
-    - caddy_data:/data
-    - caddy_config:/config
-```
-
-Y agregar `caddy_config` a la seccion `volumes` del final del archivo:
-
-```yaml
-volumes:
-  # ...los que ya estan...
-  caddy_config:
-```
-
-### Que es DDNS (DNS Dinamico)
-
-Para entender DDNS, primero hay que entender el problema que resuelve.
-
-**El problema:** cuando contras un dominio (por ejemplo en Namecheap o Google Domains), tenes que decirle a que direccion IP apunta. Pero la mayoria de las conexiones hogareñas tienen **IP dinamica**: tu proveedor de internet te cambia la IP periodicamente (cada horas o dias). Si tu IP cambia, el dominio deja de apuntar al lugar correcto y tu sitio queda inaccesible.
-
-**La solucion: DNS Dinamico (DDNS).** Es un servicio que actualiza automaticamente la relacion dominio → IP. Funciona asi:
-
-1. Te registras en un servicio DDNS y te dan un subdominio (ejemplo: `miproyecto.duckdns.org`)
-2. Instalas un cliente en tu computadora/servidor que cada pocos minutos le avisa al servicio de DDNS cual es tu IP actual
-3. Si tu IP cambia, el servicio actualiza el registro DNS automaticamente
-
-```
-Tu PC (IP cambia) → Cliente DDNS avisa → Servicio DDNS actualiza → Dominio siempre apunta a tu IP
-```
-
-### Servicios DDNS gratuitos
-
-| Servicio | Subdominio que te dan | Notas |
-|----------|----------------------|-------|
-| [Duck DNS](https://www.duckdns.org/) | `tunombre.duckdns.org` | Gratuito, simple, popular |
-| [No-IP](https://www.noip.com/) | `tunombre.ddns.net` | Gratuito con renovacion mensual |
-| [Dynu](https://www.dynu.com/) | `tunombre.dynu.net` | Gratuito, soporta dominios propios |
-| [Afraid.org](https://freedns.afraid.org/) | Varios disponibles | Gratuito, muchas opciones de subdominio |
-
-### Ejemplo completo con Duck DNS
-
-**Paso 1:** Crear una cuenta en [duckdns.org](https://www.duckdns.org/) (se puede entrar con Google/GitHub).
-
-**Paso 2:** Crear un subdominio, por ejemplo `miprog3`. Esto te da `miprog3.duckdns.org`.
-
-**Paso 3:** Agregar un servicio DDNS al `docker-compose.yml` para que actualice tu IP automaticamente:
-
-```yaml
-duckdns:
-  image: lscr.io/linuxserver/duckdns:latest
-  container_name: app_duckdns
-  restart: unless-stopped
-  environment:
-    - SUBDOMAINS=miprog3
-    - TOKEN=tu-token-de-duckdns
-    - UPDATE_IP=ipv4
-    - TZ=America/Argentina/Buenos_Aires
-```
-
-> El token lo encontras en tu panel de Duck DNS despues de loguearte.
-
-**Paso 4:** Actualizar el `Caddyfile` para usar tu subdominio:
-
-```
-miprog3.duckdns.org {
-    handle /api/* {
-        reverse_proxy backend:3001
-    }
-
-    handle /health {
-        reverse_proxy backend:3001
-    }
-
-    handle {
-        reverse_proxy frontend:3000
-    }
+```json
+{
+   "message": "Inicio de sesión exitoso",
+   "usuario": {
+      "id": 1,
+      "nombre": "Juan Pérez",
+      "email": "juan.perez@email.com"
+   }
 }
 ```
 
-**Paso 5:** Abrir los puertos 80 y 443 en tu router (port forwarding) hacia la IP local de tu computadora.
+![POST Login](./img/post-login.png)
 
-Con esto, cualquier persona puede entrar a `https://miprog3.duckdns.org` desde cualquier lugar y ver tu proyecto corriendo con HTTPS.
+#### GET Perfil por ID
 
-### Consideraciones importantes
+Retorna el perfil completo de un usuario específico a partir de su id en la ruta. Utiliza `findByPk()` con un `include` anidado en dos niveles: incorpora las transacciones del usuario y, dentro de cada una, el detalle de la categoría correspondiente.
 
-- **Port forwarding:** Tu router por defecto bloquea conexiones entrantes. Tenes que entrar a la configuracion del router (generalmente `192.168.1.1`) y redirigir los puertos 80 y 443 hacia la IP local de tu maquina.
-- **Firewall:** Si usas Linux, asegurate de que `ufw` u otro firewall permita los puertos 80 y 443.
-- **Seguridad:** Exponer tu computadora a internet tiene riesgos. Asegurate de cambiar todas las contraseñas por defecto antes de hacerlo (base de datos, pgAdmin, JWT secret).
+```http
+GET api/usuario/perfil/:id
+```
+
+**Respuesta Exitosa (200 OK):**
+
+```json
+{
+  "usuario": {
+    "id": 1,
+    "nombre": "Juan Pérez",
+    "email": "juan.perez@email.com",
+    "Transaccions": [
+      {
+        "id": 3,
+        "monto": "5000.00",
+        "descripcion": "Sueldo mensual",
+        "fecha": "2026-06-01T00:00:00.000Z",
+        "Categorium": {
+          "nombre": "Trabajo",
+          "tipo": "ingreso"
+        }
+      }
+    ]
+  }
+}
+```
+
+![GET Perfil por ID](./img/get-perfil-id.png)
+
+### Endpoints de Transacciones:
+
+#### GET /transaccion/obtener
+
+Devuelve el historial completo de todas las transacciones registradas en la base de datos. Realiza un JOIN con los modelos `Categoria` y `Usuario` para exponer datos legibles en lugar de solo claves foráneas. Los resultados se ordenan de forma descendente por fecha de transacción.
+
+```http
+GET /api/transaccion/obtener
+```
+
+**Respuesta Exitosa (200 OK):**
+
+```json
+[
+  {
+    "id": 3,
+    "monto": "5000.00",
+    "descripcion": "Sueldo mensual",
+    "fecha": "2026-06-01T00:00:00.000Z",
+    "Categorium": {
+      "id": 2,
+      "nombre": "Trabajo",
+      "tipo": "ingreso"
+    },
+    "Usuario": {
+      "id": 1,
+      "nombre": "Juan Pérez",
+      "email": "juan.perez@email.com"
+    }
+  }
+]
+```
+
+![GET Transaccion](./img/get-transaccion.png)
+
+#### GET /transaccion/filtrar
+
+Permite consultar transacciones aplicando filtros por usuario, categoria o rango de fechas. Utiliza parametros de consulta (req.query) y operadores de Sequelize para construir la busqueda. Devuelve las transacciones encontradas junto con los datos relacionados de Usuario y Categoria.
+
+```http
+GET /api/transaccion/filtrar?usuario_id=1&fechaDesde=2026-01-01&fechaHasta=2026-06-30
+```
+
+Los parámetros de consulta disponibles son:
+
+Parámetro      | Tipo   | Descripción
+---------------|--------|-------------
+`usuario_id`   | number | Filtra transacciones pertenecientes a un usuario específico
+`categoria_id` | number | Filtra transacciones de una categoría determinada
+`fechaDesde`   | date   | Fecha de inicio del rango (formato ISO 8601)
+`fechaHasta`   | date   | Fecha de fin del rango (formato ISO 8601)
+
+Todos los parámetros son opcionales y combinables entre sí.
+
+![GET Transaccion Filtrada](./img/get-transaccion-filtrar.png)
+
+#### POST /transaccion/crear
+
+Crea una nueva transacción en el sistema. Recibe por el cuerpo de la petición el monto, descripción, fecha, `usuario_id` y `categoria_id`.
+
+```http
+POST /api/transaccion/crear
+```
+
+**Cuerpo de la Petición (JSON Body):**
+
+```json
+{
+  "monto": 5000.00,
+  "descripcion": "Sueldo mensual",
+  "fecha": "2026-06-01",
+  "usuario_id": 1,
+  "categoria_id": 2
+}
+```
+
+**Respuesta Exitosa (201 Created):**
+
+```json
+{
+  "message": "Transaccion creada exitosamente",
+  "transaccion": {
+    "id": 5,
+    "monto": "5000.00",
+    "descripcion": "Sueldo mensual",
+    "fecha": "2026-06-01T00:00:00.000Z",
+    "usuario_id": 1,
+    "categoria_id": 2
+  }
+}
+```
+
+![POST Transaccion](./img/post-transaccion.png)
+
+#### PUT /transaccion/actualizar/:id
+
+Modifica una transacción existente identificada por su `:id` en la ruta. Acepta los campos `monto`, `descripcion`, `fecha` y `categoria_id` en el cuerpo de la petición, actualizando únicamente los que sean enviados.
+
+```http
+PUT /api/transaccion/actualizar/:id
+```
+
+**Cuerpo de la Petición (JSON Body):**
+
+```json
+{
+  "monto": 4500.00,
+  "descripcion": "Sueldo mensual corregido"
+}
+```
+
+**Respuesta Exitosa (200 OK):**
+
+```json
+{
+  "message": "Transaccion actualizada exitosamente",
+  "transaccion": {
+    "id": 5,
+    "monto": "4500.00",
+    "descripcion": "Sueldo mensual corregido",
+    "fecha": "2026-06-01T00:00:00.000Z",
+    "usuario_id": 1,
+    "categoria_id": 2
+  }
+}
+```
+
+![PUT Transaccion](./img/put-transaccion.png)
+
+
+#### DELETE /transaccion/:id
+
+Elimina de forma permanente una transacción identificada por su `:id` en la ruta. Verifica la existencia del registro antes de proceder.
+
+```http
+DELETE /api/transaccion/eliminar/:id
+```
+
+**Respuesta Exitosa (200 OK):**
+
+```json
+{
+  "message": "Transaccion eliminada correctamente"
+}
+```
+
+![DELETE Transaccion](./img/delete-transaccion.png)
 
 ---
 
-## Opcional: Despliegue en AWS con EC2
+## Explicación de Funciones
 
-### Que es AWS
+### Usuario (usuarioController):
 
-Amazon Web Services (AWS) es la plataforma de servicios en la nube mas grande del mundo. Ofrece servidores, bases de datos, almacenamiento, redes y cientos de servicios mas que se pagan por uso. En vez de comprar un servidor fisico, alquilas uno virtual que podes crear, configurar y destruir en minutos.
+* **`register`:** Método asíncrono encargado de procesar la creación de nuevas cuentas en el sistema. Captura las propiedades `nombre`, `email` y `password` desde el cuerpo de la petición (`req.body`). Aplica un enfoque defensivo ejecutando primero el método `findOne()` de Sequelize para verificar de forma temprana si el correo ya existe en el sistema. Si hay colisión de datos, detiene el flujo devolviendo un estado HTTP `400 Bad Request` indicando el conflicto. En caso contrario, invoca la función asíncrona `create()` para persistir el registro de forma permanente en PostgreSQL y retorna un estado `201 Created`.
 
-### Que es el Free Tier
+* **`login`:** Controlador diseñado para validar el acceso de los usuarios a la API. Utiliza el método `findOne({ where: { email } })` para localizar al usuario correspondiente. Si la búsqueda arroja un resultado nulo, o si al llamar al método de validación de contraseñas de la instancia (`validarPassword()`) se detecta una discrepancia en las credenciales criptográficas, el controlador interrumpe el ciclo devolviendo inmediatamente un estado HTTP `401 Unauthorized` por motivos de seguridad. Si los datos son correctos, expide una respuesta con estado `200 OK` adjuntando los datos esenciales del usuario para el manejo del estado en la aplicación.
 
-AWS tiene un programa llamado **Free Tier** (nivel gratuito) que permite usar varios servicios **sin costo** durante los primeros 12 meses despues de crear la cuenta. El objetivo es que puedas aprender y experimentar sin gastar dinero.
+* **`perfil`:** Controlador encargado de exponer el perfil detallado de un usuario específico. Obtiene el identificador desde los parámetros de ruta (`req.params.id`) y ejecuta `findByPk()` con un `include` anidado en dos niveles: primero trae todas las `Transacciones` asociadas al usuario (filtrando los atributos de id, monto, descripción y fecha) y, dentro de cada una, incorpora la `Categoria` correspondiente (nombre y tipo). Si no existe ningún usuario con ese identificador, interrumpe el flujo devolviendo un estado HTTP `404 Not Found`. En caso contrario, responde con estado `200 OK` adjuntando el objeto completo del usuario junto a su historial de transacciones enriquecido con los datos de categoría.
 
-> **Importante:** El Free Tier tiene limites. Si los superas, AWS te cobra automaticamente a la tarjeta de credito que registraste. Siempre controla tu uso en la consola de Billing.
+### Categoria (categoriaController):
 
-### Que incluye el Free Tier (lo mas relevante para este proyecto)
+`crearCategoria`: Permite crear nuevas categorías. Recibe `nombre` y `tipo` desde `req.body`, valida que no exista una categoría con el mismo nombre y, si todo es correcto, la guarda en la base de datos utilizando `create()`, devolviendo la categoría creada con estado 201 o un error 500 en caso de fallo.
 
-| Servicio | Que te da gratis | Duracion |
-|----------|-----------------|----------|
-| **EC2** (servidor virtual) | 750 horas/mes de instancia `t2.micro` o `t3.micro` (1 vCPU, 1 GB RAM) | 12 meses |
-| **RDS** (base de datos) | 750 horas/mes de instancia `db.t3.micro` con 20 GB de almacenamiento | 12 meses |
-| **S3** (almacenamiento) | 5 GB de almacenamiento, 20.000 requests GET, 2.000 PUT | 12 meses |
-| **Elastic IP** | 1 IP publica gratuita **mientras este asociada a una instancia corriendo** | 12 meses |
-| **Data Transfer** | 100 GB de salida a internet por mes | 12 meses |
+### Transacciones (transacionController):
 
-> 750 horas/mes = suficiente para tener **1 instancia corriendo 24/7** todo el mes (un mes tiene ~730 horas).
+* **`crearTransaccion`:** Intercepta peticiones POST para registrar nuevas operaciones. Extrae el monto, descripción, fecha, usuario_id y categoria_id enviados en el cuerpo de la petición (req.body). Utiliza el método create() del ORM Sequelize para guardar el nuevo registro en la base de datos PostgreSQL. Si la operación es exitosa, devuelve un estado 201 (Created) junto con un mensaje de éxito y el objeto de la transacción. Todo el bloque está protegido por un try/catch que devuelve un error 500 si falla la inserción.
 
-### Que es EC2
+* **`obtenerTransacciones`:** Función asíncrona encargada de leer el historial completo mediante una petición GET. Utiliza el método findAll() del modelo Transaccion. Para evitar devolver solo identificadores numéricos, implementa la propiedad include para hacer un cruce relacional (JOIN) con los modelos Categoria y Usuario, extrayendo atributos legibles y específicos como el nombre, email y tipo. Además, ordena los resultados de forma descendente (los más recientes primero) basándose en la fecha asignada y la fecha de creación del registro. Responde con los datos en formato JSON o un error 500 en caso de fallo.
 
-EC2 (Elastic Compute Cloud) es el servicio de servidores virtuales de AWS. Cada servidor se llama **instancia**. Una instancia es basicamente una computadora en la nube con Linux (o Windows) donde podes instalar lo que quieras.
+* **`actualizarTransaccion`:** Permite la edición de un registro existente mediante el método PUT. Primero, extrae el identificador dinámico de la ruta a través de req.params.id y busca la coincidencia en la base de datos usando findByPk(). Si el ID no existe, frena la ejecución y devuelve de forma temprana un error 404 (No encontrada). Si lo encuentra, evalúa uno a uno qué campos fueron enviados en el cuerpo de la petición (evaluando si son diferentes de undefined) para reemplazar únicamente los datos modificados y conservar el resto intacto. Finalmente, ejecuta el método update() de Sequelize y devuelve la transacción actualizada.
 
-La instancia `t2.micro` del Free Tier tiene:
-- 1 vCPU
-- 1 GB de RAM
-- 8 GB de disco (ampliable hasta 30 GB gratis)
-- Conexion a internet
+* **`eliminarTransaccion`:** Endpoint destructivo accesible por DELETE para borrar transacciones específicas. Captura el ID desde la ruta y localiza el registro con findByPk(). Si la transacción no existe, retorna un error 404 como medida defensiva. Si es hallada con éxito, ejecuta el método destroy() proporcionado por el ORM para borrar permanentemente la fila correspondiente en la tabla de la base de datos. Culmina la petición retornando un mensaje JSON de confirmación exitosa.
 
-Es suficiente para correr este proyecto en modo desarrollo o para un deploy basico.
+* **`obtenerTransaccionesFiltradas`:** Esta funcion sirve para no tener que traer todas las transacciones siempre que quieras consultar bajo algun criterio mas especifico. Se le pueden pasar filtros como por ejemplo, una categoria, un rango de fechas y te devuelve solo esas transacciones. Esta funcion se utiliza mediante parametros de consulta (`req.query`).
+Primero extrae los parametros recibidos desde la URL y construye un objeto `where` que utiliza Sequelize para generar la consulta correspondiente. Para el filtrado por fechas utiliza el operador `Op.between`, que permite recuperar las transacciones comprendidas entre dos fechas determinadas.
+La consulta se realiza mediante `findAll()`, incorporando informacion relacionada de los modelos `Categoria` y `Usuario` mediante la propiedad `include`, evitando devolver solo identificadores numericos. Los resultados se ordenan por fecha de forma descendente y se envian al cliente en formato JSON.
+Toda la operacion se encuentra protegida por un `try/catch`, devolviendo un error 500 en caso de producirse algun fallo durante la consulta, como en el resto de funciones.
 
-### Pasos para desplegar este proyecto en EC2
+#### Balance de Transacciones:
 
-#### 1. Crear una cuenta en AWS
+El cálculo del balance se divide en tres etapas funcionales:
 
-Ir a [aws.amazon.com](https://aws.amazon.com/) y crear una cuenta. Se necesita una tarjeta de credito/debito (se hace un cargo temporal de ~1 USD que se revierte).
+1. **`Transaccion.findAll` (Consulta y Agregación):** Se encarga de la comunicación con PostgreSQL. Filtra los registros por el `usuario_id` y delega la operación matemática al motor de la base de datos usando `fn('SUM', col('monto'))`. Mediante un `LEFT OUTER JOIN` (`include`), vincula la tabla de categorías para segmentar los montos.
 
-#### 2. Lanzar una instancia EC2
+2. **`raw: true, nest: true` (Formateo de Instancias):**
+   Normaliza la respuesta del ORM. Convierte las instancias complejas de Sequelize en objetos JSON planos. Esto permite que la aplicación pueda leer de forma directa propiedades anidadas como `item.Categorium.tipo`.
 
-1. Entrar a la [consola de EC2](https://console.aws.amazon.com/ec2/)
-2. Click en **Launch Instance**
-3. Configurar:
-   - **Nombre:** `prog3-final` (o el que quieras)
-   - **AMI:** Ubuntu Server 24.04 LTS (Free Tier eligible)
-   - **Instance type:** `t2.micro` (Free Tier eligible)
-   - **Key pair:** Crear un nuevo par de claves, descargar el archivo `.pem` (lo vas a necesitar para conectarte por SSH). **No lo pierdas.**
-   - **Network settings:** Habilitar trafico HTTP (puerto 80) y HTTPS (puerto 443). Tambien asegurarse de que SSH (puerto 22) este habilitado.
-   - **Storage:** 20 GB gp3 (dentro del Free Tier)
-4. Click en **Launch Instance**
+3. **`registros.forEach` (Clasificación y Cálculo):**
+   Itera sobre los totales devueltos por la base de datos. Ejecuta un `parseFloat` para convertir los strings monetarios en tipos numéricos y, mediante un condicional (`if/else`), acumula los montos en sus respectivas variables (`ingresos` o `egresos`).
 
-#### 3. Conectarse por SSH
-
-```bash
-# Dar permisos al archivo de clave
-chmod 400 tu-clave.pem
-
-# Conectarse (reemplazar con la IP publica de tu instancia)
-ssh -i tu-clave.pem ubuntu@54.XXX.XXX.XXX
-```
-
-> La IP publica la encontras en la consola de EC2, en los detalles de tu instancia.
-
-#### 4. Instalar Docker en la instancia
-
-```bash
-# Actualizar el sistema
-sudo apt update && sudo apt upgrade -y
-
-# Instalar Docker
-curl -fsSL https://get.docker.com | sudo sh
-
-# Agregar tu usuario al grupo docker (para no usar sudo)
-sudo usermod -aG docker $USER
-
-# Cerrar sesion y volver a entrar para que tome efecto
-exit
-# Volver a conectarse con ssh...
-
-# Verificar que Docker funciona
-docker --version
-docker compose version
-```
-
-#### 5. Clonar el proyecto y levantarlo
-
-```bash
-# Clonar el repositorio
-git clone https://github.com/tu-usuario/tu-repo.git
-cd tu-repo
-
-# Levantar los servicios
-docker compose up -d
-
-# Verificar que todo esta corriendo
-docker compose ps
-```
-
-En este punto, tu proyecto esta accesible en `http://IP-PUBLICA-DE-TU-INSTANCIA`.
-
-#### 6. (Opcional) Asociar un dominio
-
-Si tenes un dominio o un DDNS, podes apuntarlo a la IP publica de tu instancia EC2 y configurar Caddy con HTTPS como se explico en la seccion anterior.
-
-> **Nota sobre Elastic IP:** La IP publica de una instancia EC2 cambia cada vez que la detenes y la volves a iniciar. Para tener una IP fija, podes asignar una **Elastic IP** (gratuita mientras la instancia este corriendo). Se hace desde la consola de EC2 → Elastic IPs → Allocate → Associate.
-
-### Consideraciones sobre costos
-
-- **No dejes instancias corriendo si no las usas.** Si bien el Free Tier da 750 horas/mes, si lanzas 2 instancias, cada una consume horas por separado (2 instancias × 375 horas = 750 horas en medio mes).
-- **Elastic IP sin instancia = costo.** Si reservas una Elastic IP y no la asocias a una instancia corriendo, AWS te cobra ~$3.65/mes.
-- **Configura alertas de Billing.** En la consola de AWS → Billing → Budgets, podes crear una alerta que te avise si tu gasto supera cierto monto (por ejemplo, $1 USD).
-- **Cuando termines el cuatrimestre**, elimina la instancia y libera la Elastic IP para no tener cargos inesperados.
-
-### Alternativas gratuitas a AWS
-
-Si AWS te parece complejo o no queres poner una tarjeta de credito, hay alternativas con planes gratuitos mas simples:
-
-| Plataforma | Plan gratuito | Ideal para |
-|------------|--------------|------------|
-| [Railway](https://railway.app/) | $5 USD de credito/mes | Deploy rapido con Docker |
-| [Render](https://render.com/) | Servicios web gratuitos (se apagan por inactividad) | Proyectos simples |
-| [Fly.io](https://fly.io/) | 3 VMs compartidas gratuitas | Contenedores Docker |
-| [Oracle Cloud](https://www.oracle.com/cloud/free/) | 2 instancias ARM gratuitas **para siempre** (4 CPU, 24 GB RAM total) | Alternativa a EC2 sin limite de 12 meses |
+4. **Operación del Neto y `res.json` (Despacho):**
+   Realiza la resta final ($ingresos - egresos$) para obtener el `balanceNeto` y ejecuta la función de respuesta de Express para enviar el objeto estructurado al cliente con un código de estado HTTP 200.
