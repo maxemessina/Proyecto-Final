@@ -138,6 +138,59 @@ Explicación de Funciones de Transacciones
 
 eliminarTransaccion (Controller): Endpoint destructivo accesible por DELETE para borrar transacciones específicas. Captura el ID desde la ruta y localiza el registro con findByPk(). Si la transacción no existe, retorna un error 404 como medida defensiva. Si es hallada con éxito, ejecuta el método destroy() proporcionado por el ORM para borrar permanentemente la fila correspondiente en la tabla de la base de datos. Culmina la petición retornando un mensaje JSON de confirmación exitosa.
 
+### FUNCIONES UTILIZADAS PARA CATEGORÍAS
+En esta parte del proyecto hice el módulo de categorías. Sirven para clasificar las transacciones según su tipo, en este caso si son un ingreso o un egreso.
+
+Cada categoría tiene:
+* `id`
+* `nombre`
+* `tipo` (`ingreso` o `egreso`)
+*  fecha en la que fue creada.
+
+### Crear categoría
+Permite crear una nueva categoría.
+
+**Endpoint:**
+```http
+POST /api/categoria/crear
+```
+
+**Ejemplo:**
+```json
+{
+  "nombre": "Salud",
+  "tipo": "egreso"
+}
+```
+Antes de crearla se verifica que no exista otra categoría con el mismo nombre.
+
+### Obtener categorías
+
+**Endpoint:**
+```http
+GET /api/categoria/obtener
+```
+Devuelve todas las categorías guardadas en la base de datos.
+
+### Seeder
+
+Se creó para cargar algunas categorías de ejemplo y no tener que agregarlas manualmente cada vez que se levanta el proyecto.
+
+Las categorías agregadas son:
+* Sueldo
+* Comida 
+* Transporte 
+* Actividades
+* Ropa 
+
+Para ejecutarlo utilizamos:
+`npx sequelize-cli db:seed:all`
+
+### PRUEBAS EN POSTMAN
+
+![GET Categorías](backend/images/get-categorias.png)
+
+![POST Categorías](backend/images/post-categorias.png)
 ## explicacion de de transacciones: Filtro de Transacciones ##
 **obtenerTransaccionesFiltradas (Controller):** Esta funcion sirve para no tener que traer todas las transacciones siempre que quieras consultar bajo algun criterio mas especifico. Se le pueden pasar filtros como por ejemplo, una categoria, unrango de fechas y te devuelve solo esas transacciones. Esta funcion se utiliza mediante parametros de consulta (`req.query`).
 Primero extrae los parametros recibidos desde la URL y construye un objeto `where` que utiliza Sequelize para generar la consulta correspondiente. Para el filtrado por fechas utiliza el operador `Op.between`, que permite recuperar las transacciones comprendidas entre dos fechas determinadas.
