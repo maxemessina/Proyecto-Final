@@ -15,11 +15,11 @@ router.post("/crear", crearTransaccion);
 
 router.get("/filtrar", obtenerTransaccionesFiltradas);
 
-router.get("/obtener", obtenerTransacciones);
+router.get("/obtener", verificarToken, obtenerTransacciones);
 
-router.put("/actualizar/:id", actualizarTransaccion);
+router.put("/actualizar/:id", verificarToken, actualizarTransaccion);
 
-router.delete("/eliminar/:id", eliminarTransaccion);
+router.delete("/eliminar/:id", verificarToken, eliminarTransaccion);
 
 router.get('/balance/:usuarioId', transaccionController.obtenerBalance);
 
