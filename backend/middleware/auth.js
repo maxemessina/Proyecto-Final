@@ -15,8 +15,7 @@ function verificarToken(req, res, next) {
   }
 
   // TODO: Extraer el token del header Authorization.
-  const partes = authHeader.split(' ')[1];
-  const token = partes.length == 2 ? partes[1] : null;
+  const token = authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
 
   if (!token) {
     return res.status(401).json({ error: 'Formato de token inválido' });
@@ -24,9 +23,8 @@ function verificarToken(req, res, next) {
 
   try {
     // TODO: Verificar y decodificar el token con jwt.verify()
-    const decoded = jwt.verify(token, JWT_SECRET);
-    req.user = decoded;
-    next();
+    req.user = jwt.verify(token, JWT_SECRET);
+    return next();
   } catch (error) {
     return res.status(401).json({ error: 'Token inválido o expirado' });
   }
