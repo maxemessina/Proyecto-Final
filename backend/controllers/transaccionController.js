@@ -38,12 +38,12 @@ const obtenerTransacciones = async (req, res) => {
           attributes: ["id", "nombre", "email"],
         },
       ],
+
       order: [
         ["fecha", "DESC"],
         ["created_at", "DESC"],
       ],
     });
-
     res.json(transacciones);
   } catch (error) {
     console.error("Error al obtener el historial de transacciones:", error);
@@ -107,13 +107,17 @@ const actualizarTransaccion = async (req, res) => {
   try {
     const { id } = req.params;
     const { monto, descripcion, fecha, categoria_id } = req.body;
+    
+    if (monto !== undefined && parseFloat(monto) <= 0) {
+      return res.status(400).json({ error: "El monto debe ser mayor a 0" });
+    }
 
     const transaccion = await Transaccion.findByPk(id);
-
+    
     if (!transaccion) {
       return res.status(404).json({ error: "Transaccion no encontrada" });
     }
-
+    
     await transaccion.update({
       monto: monto !== undefined ? monto : transaccion.monto,
       descripcion:
