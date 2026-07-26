@@ -5,29 +5,63 @@ const HistorialTransacciones = () => {
   const [error, setError] = useState('');
   const [editando, setEditando] = useState(null);
   const [formData, setFormData] = useState({ monto: '', descripcion: '', fecha: '' });
+  const [usuarioId, setUsuarioId] = useState('');
+  const [categoriaId, setCategoriaId] = useState('');
+  const [fechaDesde, setFechaDesde] = useState('');
+  const [fechaHasta, setFechaHasta] = useState('');
+  const [paginaActual, setPaginaActual] = useState(1);
+  const registrosPorPagina = 5;
 
-  const cargarHistorial = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3001/api/transaccion/obtener', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      if (!response.ok) throw new Error('Error al traer los datos de transacciones');
-      
-      const data = await response.json();
-      setTransacciones(data);
-    } catch (err) {
-      setError(err.message);
+const cargarHistorial = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const params = new URLSearchParams();
+
+    if (usuarioId) params.append("usuario_id", usuarioId);
+    if (categoriaId) params.append("categoria_id", categoriaId);
+    if (fechaDesde) params.append("fechaDesde", fechaDesde);
+    if (fechaHasta) params.append("fechaHasta", fechaHasta);
+
+    const response = await fetch(
+  `http://localhost:3001/api/transaccion/filtrar?${params.toString()}`,
+  {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  }
+);
+
+    if (!response.ok) {
+      throw new Error("Error al traer las transacciones");
     }
-  };
+
+    const data = await response.json();
+    setTransacciones(data);
+    setPaginaActual(1);
+  } catch (err) {
+    setError(err.message);
+  }
+};
+
 
   useEffect(() => {
     cargarHistorial();
   }, []);
+
+  const indiceUltimoRegistro = paginaActual * registrosPorPagina;
+const indicePrimerRegistro = indiceUltimoRegistro - registrosPorPagina;
+
+const transaccionesPaginadas = transacciones.slice(
+  indicePrimerRegistro,
+  indiceUltimoRegistro
+);
+
+const totalPaginas = Math.ceil(
+  transacciones.length / registrosPorPagina
+);
 
   const borrarTransaccion = async (id) => {
     if (!window.confirm('¿Estás seguro de que querés eliminar esta transacción?')) return;
@@ -99,6 +133,44 @@ const HistorialTransacciones = () => {
           {error}
         </div>
       )}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+  <input
+    type="number"
+    placeholder="Usuario"
+    value={usuarioId}
+    onChange={(e) => setUsuarioId(e.target.value)}
+    className="bg-slate-700 text-white rounded-lg px-3 py-2"
+  />
+
+  <input
+    type="number"
+    placeholder="Categoría"
+    value={categoriaId}
+    onChange={(e) => setCategoriaId(e.target.value)}
+    className="bg-slate-700 text-white rounded-lg px-3 py-2"
+  />
+
+  <input
+    type="date"
+    value={fechaDesde}
+    onChange={(e) => setFechaDesde(e.target.value)}
+    className="bg-slate-700 text-white rounded-lg px-3 py-2"
+  />
+
+  <input
+    type="date"
+    value={fechaHasta}
+    onChange={(e) => setFechaHasta(e.target.value)}
+    className="bg-slate-700 text-white rounded-lg px-3 py-2"
+  />
+</div>
+
+<button
+  onClick={cargarHistorial}
+  className="mb-6 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg"
+>
+  Filtrar
+</button>
 
       <div className="overflow-x-auto rounded-xl border border-slate-700">
         <table className="w-full text-left border-collapse">
@@ -112,7 +184,7 @@ const HistorialTransacciones = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-700/50 bg-slate-800">
-            {transacciones.map((t) => (
+            {transaccionesPaginadas.map((t) => (
               <tr key={t.id} className="hover:bg-slate-700/30 transition-colors">
                 <td className="p-4 text-slate-300">
                   {new Date(t.fecha).toLocaleDateString('es-AR')}
@@ -142,8 +214,7 @@ const HistorialTransacciones = () => {
                 </td>
               </tr>
             ))}
-            
-            {transacciones.length === 0 && !error && (
+                {transacciones.length === 0 && !error && (
               <tr>
                 <td colSpan="5" className="p-8 text-center text-slate-500">
                   No hay transacciones registradas aún.
@@ -153,6 +224,28 @@ const HistorialTransacciones = () => {
           </tbody>
         </table>
       </div>
+      <div className="flex justify-between items-center mt-6">
+  <button
+    onClick={() => setPaginaActual(paginaActual - 1)}
+    disabled={paginaActual === 1}
+    className="px-4 py-2 bg-slate-700 text-white rounded disabled:opacity-50"
+  >
+    Anterior
+  </button>
+
+  <span className="text-white">
+    Página {paginaActual} de {totalPaginas || 1}
+  </span>
+
+  <button
+    onClick={() => setPaginaActual(paginaActual + 1)}
+    disabled={paginaActual === totalPaginas || totalPaginas === 0}
+    className="px-4 py-2 bg-slate-700 text-white rounded disabled:opacity-50"
+  >
+    Siguiente
+  </button>
+</div>
+
 
       {editando && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
