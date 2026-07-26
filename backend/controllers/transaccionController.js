@@ -107,11 +107,6 @@ const actualizarTransaccion = async (req, res) => {
   try {
     const { id } = req.params;
     const { monto, descripcion, fecha, categoria_id } = req.body;
-    
-    if (monto !== undefined && parseFloat(monto) <= 0) {
-      return res.status(400).json({ error: "El monto debe ser mayor a 0" });
-    }
-
     const transaccion = await Transaccion.findByPk(id);
     
     if (!transaccion) {

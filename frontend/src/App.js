@@ -9,6 +9,7 @@ import Categorias from './pages/Categorias';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import MainLayout from './components/layout/MainLayout';
+import CrearTransaccion from './pages/CrearTransaccion';
 import HistorialTransacciones from './pages/HistorialTransacciones';
 
 function App() {
@@ -38,6 +39,17 @@ function App() {
           </ProtectedRoute>
         }
       />
+      {/* Ruta para crear transacción */}
+    <Route
+      path="/transactions/create"
+      element={
+      <ProtectedRoute>
+        <MainLayout>
+        <CrearTransaccion />
+        </MainLayout>
+      </ProtectedRoute>
+    }
+/>
       <Route
   path="/transacciones"
   element={
