@@ -5,10 +5,12 @@ import Register from './pages/Register';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
 import Dashboard from './pages/Dashboard';
+import Categorias from './pages/Categorias';
 import { AuthProvider } from './contexts/AuthContext';
-import ProtectedRoute from './components/ui/ProtectedRoute';
+import ProtectedRoute from './components/ProtectedRoute';
 import MainLayout from './components/layout/MainLayout';
 import CrearTransaccion from './pages/CrearTransaccion';
+import HistorialTransacciones from './pages/HistorialTransacciones';
 
 function App() {
   return (
@@ -48,6 +50,27 @@ function App() {
       </ProtectedRoute>
     }
 />
+      <Route
+  path="/transacciones"
+  element={
+    <ProtectedRoute>
+      <MainLayout>
+        <HistorialTransacciones />
+      </MainLayout>
+    </ProtectedRoute>
+  }
+/>
+
+      <Route
+        path="/categorias"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <Categorias />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />  
 
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
     </Routes>
