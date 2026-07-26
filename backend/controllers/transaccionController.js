@@ -153,7 +153,12 @@ const eliminarTransaccion = async (req, res) => {
 
 const obtenerBalance = async (req, res) => {
   try {
-    const usuario_id = req.params.usuarioId; 
+    // Espera que verificarToken haya puesto la info decodificada en req.user
+    const usuario_id = req.user?.id;
+
+    if (!usuario_id) {
+      return res.status(401).json({ error: 'Usuario no autenticado' });
+    }
 
     const registros = await Transaccion.findAll({
       where: { usuario_id },
@@ -175,7 +180,6 @@ const obtenerBalance = async (req, res) => {
     let egresos = 0;
 
     registros.forEach(item => {
-      
       const total = parseFloat(item.total) || 0;
       const tipo = item.Categorium ? item.Categorium.tipo : null;
 
@@ -197,10 +201,10 @@ const obtenerBalance = async (req, res) => {
       }
     });
 
-} catch (error) {
-  console.error('Error al calcular el balance con Sequelize:', error);
+  } catch (error) {
+    console.error('Error al calcular el balance con Sequelize:', error);
 
-  return res.status(500).json({
+    return res.status(500).json({
       message: 'Error interno del servidor al calcular el balance'
     });
   }
