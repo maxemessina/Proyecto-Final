@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ui/ProtectedRoute';
 import MainLayout from './components/layout/MainLayout';
+import CrearTransaccion from './pages/CrearTransaccion';
 
 function App() {
   return (
@@ -36,6 +37,17 @@ function App() {
           </ProtectedRoute>
         }
       />
+      {/* Ruta para crear transacción */}
+    <Route
+      path="/transactions/create"
+      element={
+      <ProtectedRoute>
+        <MainLayout>
+        <CrearTransaccion />
+        </MainLayout>
+      </ProtectedRoute>
+    }
+/>
 
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
     </Routes>
