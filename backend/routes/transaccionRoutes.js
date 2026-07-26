@@ -8,16 +8,19 @@ const {
   eliminarTransaccion,
 } = require("../controllers/transaccionController");
 
-const transaccionController = require('../controllers/transaccionController');
-const { verificarToken } = require('../middleware/auth');
+const transaccionController = require("../controllers/transaccionController");
 
-router.post("/crear", crearTransaccion);
+const { verificarToken } = require("../middleware/auth");
+
+const {validarCrearTransaccion, validarActualizarTransaccion,} = require("../middleware/transaccionmiddleware");
+
+router.post("/crear", verificarToken, validarCrearTransaccion, crearTransaccion);
 
 router.get("/filtrar", obtenerTransaccionesFiltradas);
 
 router.get("/obtener", verificarToken, obtenerTransacciones);
 
-router.put("/actualizar/:id", verificarToken, actualizarTransaccion);
+router.put("/actualizar/:id", verificarToken, validarActualizarTransaccion, actualizarTransaccion);
 
 router.delete("/eliminar/:id", verificarToken, eliminarTransaccion);
 
