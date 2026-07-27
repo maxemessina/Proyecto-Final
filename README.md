@@ -2,9 +2,8 @@
 
 ## Descripción del Proyecto
 
-Esta aplicación es una plataforma para registrar, categorizar y analizar ingresos y gastos personales. Actualmente, el proyecto corresponde a la entrega del **Parcial 2** de **Programacion III** , enfocado en el desarrollo de un Backend bajo la arquitectura **MVC** utilizando Node.js, Express y **Sequelize** (PostgreSQL) para la persistencia de datos reales, todo orquestado con Docker Compose.
-
-**Futura Update (Proyecto Final):** Esta API está preparada e intencionalmente desacoplada para ser consumida en la próxima etapa por un Frontend desarrollado en **React** e implementar **JWT**.
+Esta aplicación es una plataforma para registrar, categorizar y analizar ingresos y gastos personales. El proyecto corresponde a la entrega del **Parcial 2** de **Programacion III** , enfocado en el desarrollo de un Backend bajo la arquitectura **MVC** utilizando Node.js, Express y **Sequelize** (PostgreSQL) para la persistencia de datos reales, todo orquestado con Docker Compose.
+**Update (Proyecto Final):** Con la ultima actualizacion apmpliamos el proyecto, [ver documentacion especifica del Front-End](./actualizacion_final.md) 
 
 ---
 
