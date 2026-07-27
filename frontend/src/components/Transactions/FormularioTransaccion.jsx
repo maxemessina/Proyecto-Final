@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DollarSign, FileText, Calendar, Tags } from "lucide-react";
 
 export default function FormularioTransaccion() {
@@ -8,6 +8,28 @@ export default function FormularioTransaccion() {
     const [categoria, setCategoria] = useState("");
     const [error, setError] = useState("");
     const [mensaje, setMensaje] = useState("");
+    const [categorias, setCategorias] = useState([]);
+
+    useEffect(() => {
+      const base = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+      const token = localStorage.getItem('token');
+
+      fetch(`${base}/categoria/obtener`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token ? `Bearer ${token}` : '',
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (Array.isArray(data)) setCategorias(data);
+          else setCategorias([]);
+        })
+        .catch((err) => {
+          console.error('Error al obtener categorías:', err);
+          setCategorias([]);
+        });
+    }, []);
 
     const handleSubmit = async (e) => {
       e.preventDefault();
@@ -103,6 +125,7 @@ export default function FormularioTransaccion() {
       }
     };
 
+    const categoriaSeleccionada = categorias.find(c => String(c.id) === String(categoria));
 
     return (
         <div className="mt-6 p-6 border rounded shadow-sm bg-gray-50">
@@ -218,18 +241,17 @@ export default function FormularioTransaccion() {
                             onChange={(e) => setCategoria(e.target.value)}
                             className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-300 rounded-xl text-gray-900 focus:ring-2 focus:ring-indigo-500 outline-none"
                         >
-                            <option value="">
-                                Seleccione una categoría
-                            </option>
-
-                            <option value="1">
-                                Ingreso
-                            </option>
-
-                            <option value="2">
-                                Egreso
-                            </option>
+                            <option value="">Seleccione una categoría</option>
+                            {categorias.map((c) => (
+                                <option key={c.id} value={c.id}>
+                                    {c.nombre} {c.tipo ? `(${c.tipo === 'ingreso' ? 'Ingreso' : 'Egreso'})` : ''}
+                                </option>
+                            ))}
                         </select>
+
+                        {categoriaSeleccionada && (
+                          <p className="mt-2 text-sm text-gray-600">Tipo: {categoriaSeleccionada.tipo === 'ingreso' ? 'Ingreso' : 'Egreso'}</p>
+                        )}
                     </div>
                 </div>
 
