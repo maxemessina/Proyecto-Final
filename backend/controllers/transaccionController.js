@@ -27,7 +27,14 @@ const crearTransaccion = async (req, res) => {
 
 const obtenerTransacciones = async (req, res) => {
   try {
+    const usuario_id = req.user?.id;
+
+    if (!usuario_id) {
+      return res.status(401).json({ error: 'Usuario no autenticado' });
+    }
+
     const transacciones = await Transaccion.findAll({
+      where: { usuario_id },
       include: [
         {
           model: Categoria,
@@ -38,12 +45,12 @@ const obtenerTransacciones = async (req, res) => {
           attributes: ["id", "nombre", "email"],
         },
       ],
+
       order: [
         ["fecha", "DESC"],
         ["created_at", "DESC"],
       ],
     });
-
     res.json(transacciones);
   } catch (error) {
     console.error("Error al obtener el historial de transacciones:", error);
@@ -55,19 +62,20 @@ const obtenerTransaccionesFiltradas = async (req, res) => {
   try {
     const {
       categoria_id,
-      usuario_id,
       fechaDesde,
       fechaHasta,
     } = req.query;
 
-    const where = {};
+    const usuario_id = req.user?.id;
+
+    if (!usuario_id) {
+      return res.status(401).json({ error: 'Usuario no autenticado' });
+    }
+
+    const where = { usuario_id };
 
     if (categoria_id) {
       where.categoria_id = categoria_id;
-    }
-
-    if (usuario_id) {
-      where.usuario_id = usuario_id;
     }
 
     if (fechaDesde && fechaHasta) {
@@ -107,13 +115,12 @@ const actualizarTransaccion = async (req, res) => {
   try {
     const { id } = req.params;
     const { monto, descripcion, fecha, categoria_id } = req.body;
-
     const transaccion = await Transaccion.findByPk(id);
-
+    
     if (!transaccion) {
       return res.status(404).json({ error: "Transaccion no encontrada" });
     }
-
+    
     await transaccion.update({
       monto: monto !== undefined ? monto : transaccion.monto,
       descripcion:
@@ -154,7 +161,12 @@ const eliminarTransaccion = async (req, res) => {
 
 const obtenerBalance = async (req, res) => {
   try {
-    const usuario_id = req.params.usuarioId; 
+    // Espera que verificarToken haya puesto la info decodificada en req.user
+    const usuario_id = req.user?.id;
+
+    if (!usuario_id) {
+      return res.status(401).json({ error: 'Usuario no autenticado' });
+    }
 
     const registros = await Transaccion.findAll({
       where: { usuario_id },
@@ -164,19 +176,18 @@ const obtenerBalance = async (req, res) => {
       include: [
         {
           model: Categoria,
-          attributes: ['tipo'], 
+          attributes: ['id', 'tipo'], 
         }
       ],
       group: ['Categorium.tipo', 'Categorium.id'],
-      raw: true,  
-      nest: true 
+      raw: true,
+      nest: true
     });
 
     let ingresos = 0;
     let egresos = 0;
 
     registros.forEach(item => {
-      
       const total = parseFloat(item.total) || 0;
       const tipo = item.Categorium ? item.Categorium.tipo : null;
 
@@ -198,10 +209,10 @@ const obtenerBalance = async (req, res) => {
       }
     });
 
-} catch (error) {
-  console.error('Error al calcular el balance con Sequelize:', error);
+  } catch (error) {
+    console.error('Error al calcular el balance con Sequelize:', error);
 
-  return res.status(500).json({
+    return res.status(500).json({
       message: 'Error interno del servidor al calcular el balance'
     });
   }

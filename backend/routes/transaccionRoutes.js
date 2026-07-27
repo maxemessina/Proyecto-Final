@@ -8,19 +8,23 @@ const {
   eliminarTransaccion,
 } = require("../controllers/transaccionController");
 
-const transaccionController = require('../controllers/transaccionController');
-const { verificarToken } = require('../middleware/auth');
+const transaccionController = require("../controllers/transaccionController");
 
-router.post("/crear", crearTransaccion);
+const { verificarToken } = require("../middleware/auth");
 
-router.get("/filtrar", obtenerTransaccionesFiltradas);
+const {validarCrearTransaccion, validarActualizarTransaccion,} = require("../middleware/transaccionmiddleware");
 
-router.get("/obtener", obtenerTransacciones);
+router.post("/crear", verificarToken, validarCrearTransaccion, crearTransaccion);
 
-router.put("/actualizar/:id", actualizarTransaccion);
+router.get("/filtrar", verificarToken, obtenerTransaccionesFiltradas);
 
-router.delete("/eliminar/:id", eliminarTransaccion);
+router.get("/obtener", verificarToken, obtenerTransacciones);
 
-router.get('/balance/:usuarioId', transaccionController.obtenerBalance);
+router.put("/actualizar/:id", verificarToken, validarActualizarTransaccion, actualizarTransaccion);
+
+router.delete("/eliminar/:id", verificarToken, eliminarTransaccion);
+
+// Balance protegido: usa el token para identificar al usuario autenticado
+router.get('/balance', verificarToken, transaccionController.obtenerBalance);
 
 module.exports = router;

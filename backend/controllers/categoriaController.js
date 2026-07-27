@@ -50,7 +50,70 @@ const obtenerCategorias = async (req, res) => {
   }
 };
 
+const editarCategoria = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nombre, tipo } = req.body;
+
+    const categoria = await Categoria.findByPk(id);
+
+    if (!categoria) {
+      return res.status(404).json({
+        error: "Categoría no encontrada"
+      });
+    }
+
+    await categoria.update({
+      nombre,
+      tipo
+    });
+
+    res.json({
+      message: "Categoría actualizada correctamente",
+      categoria
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error: "Error al actualizar categoría"
+    });
+  }
+};
+
+const eliminarCategoria = async (req, res) => {
+  try {
+
+    const { id } = req.params;
+
+    const categoria = await Categoria.findByPk(id);
+
+    if (!categoria) {
+      return res.status(404).json({
+        error: "Categoría no encontrada"
+      });
+    }
+
+    await categoria.destroy();
+
+    res.json({
+      message: "Categoría eliminada correctamente"
+    });
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+      error: "Error al eliminar categoría"
+    });
+
+  }
+};
+
 module.exports = {
   crearCategoria,
-  obtenerCategorias
+  obtenerCategorias,
+  editarCategoria,
+  eliminarCategoria
 };

@@ -15,6 +15,7 @@ router.get('/health', (req, res) => {
 });
 
 // Rutas de usuario
+router.use('/auth', usuarioRoutes);
 router.use('/usuario', usuarioRoutes);
 
 // Rutas de categoría
