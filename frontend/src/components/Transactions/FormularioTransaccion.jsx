@@ -9,61 +9,99 @@ export default function FormularioTransaccion() {
     const [error, setError] = useState("");
     const [mensaje, setMensaje] = useState("");
 
-    const handleSubmit = (e) => {
-    e.preventDefault();
+    const handleSubmit = async (e) => {
+      e.preventDefault();
 
-    setError("");
-    setMensaje("");
+      setError("");
+      setMensaje("");
 
-        setError("");
+      if (!monto) {
+        setError("El monto es obligatorio");
+        return;
+      }
 
-        if (!monto) {
-            setError("El monto es obligatorio");
-            return;
-        }
+      if (Number(monto) <= 0) {
+        setError("El monto debe ser mayor a 0");
+        return;
+      }
 
-        if (Number(monto) <= 0) {
-            setError("El monto debe ser mayor a 0");
-            return;
-        }
+      if (!descripcion.trim()) {
+        setError("La descripción es obligatoria");
+        return;
+      }
 
-        if (!descripcion.trim()) {
-            setError("La descripción es obligatoria");
-            return;
-        }
-
-        if (!fecha) {
+      if (!fecha) {
         setError("Debe seleccionar una fecha");
         return;
-        }
+      }
 
-    const fechaIngresada = new Date(fecha);
+      const fechaIngresada = new Date(fecha);
 
-    if (isNaN(fechaIngresada.getTime())) {
+      if (isNaN(fechaIngresada.getTime())) {
         setError("La fecha ingresada no es válida");
         return;
-    }
+      }
 
-        if (!categoria) {
-            setError("Debe seleccionar una categoría");
-            return;
+      if (!categoria) {
+        setError("Debe seleccionar una categoría");
+        return;
+      }
+
+      // Obtener usuario desde localStorage (si está logueado)
+      let usuario_id = null;
+      try {
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+          const parsed = JSON.parse(storedUser);
+          usuario_id = parsed?.id || null;
         }
+      } catch (err) {
+        // ignore parse errors
+      }
 
-    console.log({
-    monto,
-    descripcion,
-    fecha,
-    categoria,
-});
+      if (!usuario_id) {
+        setError('Usuario no autenticado. Inicie sesión para crear transacciones.');
+        return;
+      }
 
-setMensaje("Transacción realizada correctamente");
+      const payload = {
+        monto: Number(monto),
+        descripcion: descripcion.trim(),
+        fecha,
+        usuario_id,
+        categoria_id: Number(categoria),
+      };
 
-//limpia el formulario
-setMonto("");
-setDescripcion("");
-setFecha("");
-setCategoria("");
-};
+      try {
+        const token = localStorage.getItem('token');
+        const base = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+        const res = await fetch(`${base}/transaccion/crear`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: token ? `Bearer ${token}` : '',
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (res.ok) {
+          setMensaje('Transacción creada correctamente.');
+
+          // limpia el formulario
+          setMonto("");
+          setDescripcion("");
+          setFecha("");
+          setCategoria("");
+        } else {
+          const data = await res.json().catch(() => ({}));
+          setError(data.error || 'Error al crear la transacción');
+        }
+      } catch (error) {
+        console.error('Error en creación:', error);
+        const msg = error?.message || 'Error en la petición';
+        setError(msg);
+      }
+    };
 
 
     return (

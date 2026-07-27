@@ -37,7 +37,7 @@ api.interceptors.response.use(
         localStorage.removeItem('token');
         localStorage.removeItem('user');
       } catch (e) {}
-        window.location.replace = '/login';
+        window.location.replace('/login');
     }
     return Promise.reject(error);
   }
