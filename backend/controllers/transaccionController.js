@@ -168,12 +168,12 @@ const obtenerBalance = async (req, res) => {
       include: [
         {
           model: Categoria,
-          attributes: ['tipo'], 
+          attributes: ['id', 'tipo'], 
         }
       ],
       group: ['Categorium.tipo', 'Categorium.id'],
-      raw: true,  
-      nest: true 
+      raw: true,
+      nest: true
     });
 
     let ingresos = 0;
