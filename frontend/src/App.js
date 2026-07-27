@@ -6,6 +6,7 @@ import Login from './pages/Login';
 import Profile from './pages/Profile';
 import Dashboard from './pages/Dashboard';
 import Categorias from './pages/Categorias';
+import Balance from './pages/balance';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import MainLayout from './components/layout/MainLayout';
@@ -71,6 +72,17 @@ function App() {
           </ProtectedRoute>
         }
       />  
+
+      <Route
+        path="/balance"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <Balance />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
 
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
     </Routes>

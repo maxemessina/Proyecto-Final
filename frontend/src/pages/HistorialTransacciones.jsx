@@ -5,7 +5,6 @@ const HistorialTransacciones = () => {
   const [error, setError] = useState('');
   const [editando, setEditando] = useState(null);
   const [formData, setFormData] = useState({ monto: '', descripcion: '', fecha: '' });
-  const [usuarioId, setUsuarioId] = useState('');
   const [categoriaId, setCategoriaId] = useState('');
   const [fechaDesde, setFechaDesde] = useState('');
   const [fechaHasta, setFechaHasta] = useState('');
@@ -18,7 +17,6 @@ const cargarHistorial = async () => {
 
     const params = new URLSearchParams();
 
-    if (usuarioId) params.append("usuario_id", usuarioId);
     if (categoriaId) params.append("categoria_id", categoriaId);
     if (fechaDesde) params.append("fechaDesde", fechaDesde);
     if (fechaHasta) params.append("fechaHasta", fechaHasta);
@@ -134,13 +132,6 @@ const totalPaginas = Math.ceil(
         </div>
       )}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-  <input
-    type="number"
-    placeholder="Usuario"
-    value={usuarioId}
-    onChange={(e) => setUsuarioId(e.target.value)}
-    className="bg-slate-700 text-white rounded-lg px-3 py-2"
-  />
 
   <input
     type="number"

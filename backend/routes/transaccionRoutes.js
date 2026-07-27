@@ -16,7 +16,7 @@ const {validarCrearTransaccion, validarActualizarTransaccion,} = require("../mid
 
 router.post("/crear", verificarToken, validarCrearTransaccion, crearTransaccion);
 
-router.get("/filtrar", obtenerTransaccionesFiltradas);
+router.get("/filtrar", verificarToken, obtenerTransaccionesFiltradas);
 
 router.get("/obtener", verificarToken, obtenerTransacciones);
 
@@ -24,6 +24,7 @@ router.put("/actualizar/:id", verificarToken, validarActualizarTransaccion, actu
 
 router.delete("/eliminar/:id", verificarToken, eliminarTransaccion);
 
-router.get('/balance/:usuarioId', transaccionController.obtenerBalance);
+// Balance protegido: usa el token para identificar al usuario autenticado
+router.get('/balance', verificarToken, transaccionController.obtenerBalance);
 
 module.exports = router;

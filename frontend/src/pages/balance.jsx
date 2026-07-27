@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { 
   Wallet, 
-  User, 
   Search, 
   AlertCircle, 
   ArrowUpRight, 
@@ -11,10 +10,9 @@ import {
   Loader2 
 } from 'lucide-react';
 
-const API_BASE_URL = 'http://localhost:3001/api/transaccion/balance';
+import api from '../services/api';
 
 export default function Balance() {
-  const [usuarioId, setUsuarioId] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [data, setData] = useState(null);
@@ -30,23 +28,25 @@ export default function Balance() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!usuarioId.trim()) return;
 
     setLoading(true);
     setError(null);
     setData(null);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/${usuarioId}`);
-      const result = await response.json();
+      // Llamada protegida: el interceptor de api añadirá el token desde localStorage
+      const response = await api.get('/transaccion/balance');
 
-      if (!response.ok || result.status !== 'success') {
+      const result = response.data;
+
+      if (result?.status !== 'success') {
         throw new Error(result.message || 'Error al obtener el balance');
       }
 
       setData(result.data);
     } catch (err) {
-      setError(err.message || 'No se pudo conectar con el servidor');
+      // Si la petición devuelve 401, el interceptor de api redirigirá al login
+      setError(err?.response?.data?.message || err.message || 'No se pudo conectar con el servidor');
     } finally {
       setLoading(false);
     }
@@ -94,36 +94,23 @@ export default function Balance() {
               <Wallet className="text-indigo-400" />
               Resumen de Balance
             </h1>
-            <p className="text-slate-400 text-sm mt-1">Consulta el estado financiero por ID de usuario</p>
+            <p className="text-slate-400 text-sm mt-1">Consulta tu estado financiero (usuario autenticado)</p>
           </div>
           <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-xs font-semibold rounded-full border border-indigo-500/20">
             En tiempo real
           </span>
         </div>
 
-        {/* Formulario / Selector de Usuario */}
+        {/* Botón para consultar el balance del usuario autenticado */}
         <form onSubmit={handleSubmit} className="flex gap-3 mb-8">
-          <div className="relative flex-1">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-              <User className="w-5 h-5" />
-            </div>
-            <input
-              type="number"
-              value={usuarioId}
-              onChange={(e) => setUsuarioId(e.target.value)}
-              placeholder="Ingrese el ID del Usuario (ej: 1)"
-              required
-              min="1"
-              className="w-full pl-10 pr-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-100 placeholder-slate-500 transition-all outline-none"
-            />
-          </div>
+          <div className="flex-1" />
           <button
             type="submit"
             disabled={loading}
-            className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-800 text-white font-medium rounded-xl shadow-lg shadow-indigo-600/30 transition-all duration-200 flex items-center gap-2 active:scale-95 cursor-pointer"
+            className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-800 text-white font-medium rounded-xl shadow-lg shadow-indigo-600/30 transition-all duration-200 flex items-center gap-2 active:scale-95 cursor-pointer ml-auto"
           >
             <Search className="w-4 h-4" />
-            <span>Consultar</span>
+            <span>Consultar mi balance</span>
           </button>
         </form>
 
@@ -203,7 +190,7 @@ export default function Balance() {
         {!loading && !data && !error && (
           <div className="text-center py-12 text-slate-500">
             <BarChart3 className="w-12 h-12 mx-auto mb-3 opacity-40" />
-            <p className="text-sm">Ingresa un ID de usuario arriba para visualizar su balance.</p>
+            <p className="text-sm">Presiona "Consultar mi balance" para visualizar tu balance (protegido por token).</p>
           </div>
         )}
 
