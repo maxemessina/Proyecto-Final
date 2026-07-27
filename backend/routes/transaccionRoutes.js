@@ -16,7 +16,7 @@ const {validarCrearTransaccion, validarActualizarTransaccion,} = require("../mid
 
 router.post("/crear", verificarToken, validarCrearTransaccion, crearTransaccion);
 
-router.get("/filtrar", obtenerTransaccionesFiltradas);
+router.get("/filtrar", verificarToken, obtenerTransaccionesFiltradas);
 
 router.get("/obtener", verificarToken, obtenerTransacciones);
 

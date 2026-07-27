@@ -27,7 +27,14 @@ const crearTransaccion = async (req, res) => {
 
 const obtenerTransacciones = async (req, res) => {
   try {
+    const usuario_id = req.user?.id;
+
+    if (!usuario_id) {
+      return res.status(401).json({ error: 'Usuario no autenticado' });
+    }
+
     const transacciones = await Transaccion.findAll({
+      where: { usuario_id },
       include: [
         {
           model: Categoria,
@@ -55,19 +62,20 @@ const obtenerTransaccionesFiltradas = async (req, res) => {
   try {
     const {
       categoria_id,
-      usuario_id,
       fechaDesde,
       fechaHasta,
     } = req.query;
 
-    const where = {};
+    const usuario_id = req.user?.id;
+
+    if (!usuario_id) {
+      return res.status(401).json({ error: 'Usuario no autenticado' });
+    }
+
+    const where = { usuario_id };
 
     if (categoria_id) {
       where.categoria_id = categoria_id;
-    }
-
-    if (usuario_id) {
-      where.usuario_id = usuario_id;
     }
 
     if (fechaDesde && fechaHasta) {
